@@ -5,10 +5,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicTacToe</title>
+    <link rel="stylesheet" href="cssfile.css">
 </head>
 <body>
-    
-<h1>TicTacToe</h1>
+    <script src="main.js"></script>
+    <div class="content">
 
+<h1>TicTacToe</h1> <br> <br> <br>
+<button onclick="findPlayerButton">Find a second player</button>
+
+<svg width="700" height="700">
+
+<line x1="233" y1="0" x2="233" y2="700" stroke="black"/>
+<line x1="466" y1="0" x2="466" y2="700" stroke="black"/>
+<line x1="0" y1="233" x2="700" y2="233" stroke="black"/>
+<line x1="0" y1="466" x2="700" y2="466" stroke="black"/>
+
+<rect class="rect1css" id="rect1" onclick="rect1js()" x="1.5" y="1.5" width="230" height="230" fill="white"/>
+<rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="white"/>
+<rect class="rect3css" id="rect3" x="467.5" y="1.5" width="230" height="230" fill="white"/>
+<rect class="rect4css" id="rect4" x="1.5" y="234.5" width="230" height="230" fill="white"/>
+<rect class="rect5css" id="rect5" x="234.5" y="234.5" width="230" height="230" fill="white"/>
+<rect class="rect6css" id="rect6" x="467.5" y="234.5" width="230" height="230" fill="white"/>
+<rect class="rect7css" id="rect7" x="1.5" y="467.5" width="230" height="230" fill="white"/>
+<rect class="rect8css" id="rect8" x="234.5" y="467.5" width="230" height="230" fill="white"/>
+<rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="white"/>
+
+</svg>
+
+</div>
 </body>
 </html>

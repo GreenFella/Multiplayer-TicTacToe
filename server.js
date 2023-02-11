@@ -14,6 +14,20 @@ const WebSocket = require('ws');
             res.render('main.ejs')
       });
 
+      const wss = new WebSocket.Server({ port: 8081 });
+
+      wss.on('connection', function connection(ws) {
+
+        ws.on('message', function incoming(message) {
+          console.log('received: %s', message);
+          
+            ws.send('message received');
+          
+        });
+      });
+
+      
+
     app.listen(80, function() {
         console.log('Listening on port 80!')
       })
