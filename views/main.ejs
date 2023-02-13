@@ -8,11 +8,12 @@
     <link rel="stylesheet" href="cssfile.css">
 </head>
 <body>
-    <script src="main.js"></script>
+   
     <div class="content">
 
 <h1>TicTacToe</h1> <br> <br> <br>
-<button onclick="findPlayerButton">Find a second player</button>
+<button onclick="findPlayerButton()">Find a second player</button>
+<p id="red">yes</p>
 
 <svg width="700" height="700">
 
@@ -21,7 +22,9 @@
 <line x1="0" y1="233" x2="700" y2="233" stroke="black"/>
 <line x1="0" y1="466" x2="700" y2="466" stroke="black"/>
 
-<rect class="rect1css" id="rect1" onclick="rect1js()" x="1.5" y="1.5" width="230" height="230" fill="white"/>
+<circle class="circ1css" cx="116.5" cy="116.5" r="100" fill="white" stroke="black" stroke-width="15"/>
+
+<rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="white"/>
 <rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="white"/>
 <rect class="rect3css" id="rect3" x="467.5" y="1.5" width="230" height="230" fill="white"/>
 <rect class="rect4css" id="rect4" x="1.5" y="234.5" width="230" height="230" fill="white"/>
@@ -31,6 +34,35 @@
 <rect class="rect8css" id="rect8" x="234.5" y="467.5" width="230" height="230" fill="white"/>
 <rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="white"/>
 
+    <script>
+
+      let player
+      let clientSession
+
+      const socket = new WebSocket("ws://20.248.161.0:8081");
+
+      function findPlayerButton() {
+        socket.addEventListener("open", e => {});
+          socket.send("Waiting");
+          socket.addEventListener('message', function (message) {
+            if (message.data.charAt(message.data.length-1) == "1") {
+              player = 1;
+            }
+            else if (message.data.charAt(message.data.length-1) == "2") {
+              player = 2;
+            }
+            clientSession = message.data.substring(0, message.data.length-1)
+          });
+        }
+
+        function place (location) {
+          let locationNumber = location.charAt(location.length-1)
+          socket.addEventListener("open", e => {});
+          socket.send(clientSession + player + locationNumber);
+        }
+
+    </script>
+  
 </svg>
 
 </div>
