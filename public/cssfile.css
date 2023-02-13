@@ -3,7 +3,7 @@
 }
 
 .rect1css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect2css:hover {
     fill: yellow;
@@ -30,6 +30,10 @@
     fill: yellow;
 }
 
-.circ1css:hover {
-    fill: yellow;
+.circ1css {
+    stroke: black;
+}
+
+.line1css {
+    stroke: black;
 }

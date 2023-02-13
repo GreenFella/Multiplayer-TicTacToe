@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="cssfile.css">
 </head>
 <body>
-   
+  <button onclick="findPlayerButton()">Find a second player</button> <br>
+  <button onclick="styleToggle()">Start</button>
     <div class="content">
 
-<h1>TicTacToe</h1> <br> <br> <br>
-<button onclick="findPlayerButton()">Find a second player</button>
-<p id="red">yes</p>
+<h1>TicTacToe</h1> <br> <br>
 
 <svg width="700" height="700">
 
@@ -22,7 +21,9 @@
 <line x1="0" y1="233" x2="700" y2="233" stroke="black"/>
 <line x1="0" y1="466" x2="700" y2="466" stroke="black"/>
 
-<circle class="circ1css" cx="116.5" cy="116.5" r="100" fill="white" stroke="black" stroke-width="15"/>
+<circle id="circ1" class="circ1css" cx="116.5" cy="116.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+
+<line id="line1" class="line1css" x1="11.5" y1="11.5" x2="210" y2="210" stroke="none" stroke-width="15"/>
 
 <rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="white"/>
 <rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="white"/>
@@ -35,6 +36,20 @@
 <rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="white"/>
 
     <script>
+      
+      window.addEventListener("load", (event) =>  {
+        document.getElementById("circ1").classList.toggle("circ1css");
+        document.getElementById("line1").classList.toggle("line1css");
+      })
+
+      function styleToggle () {
+        if (player == 1) {
+        document.getElementById("line1").classList.toggle("line1css");
+        }
+        else {
+          document.getElementById("circ1").classList.toggle("circ1css");
+        }
+      }
 
       let player
       let clientSession
@@ -45,6 +60,7 @@
         socket.addEventListener("open", e => {});
           socket.send("Waiting");
           socket.addEventListener('message', function (message) {
+            console.log(message.data)
             if (message.data.charAt(message.data.length-1) == "1") {
               player = 1;
             }
@@ -53,12 +69,14 @@
             }
             clientSession = message.data.substring(0, message.data.length-1)
           });
+
         }
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
           socket.addEventListener("open", e => {});
           socket.send(clientSession + player + locationNumber);
+
         }
 
     </script>
