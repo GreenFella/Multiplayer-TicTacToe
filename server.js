@@ -13,6 +13,7 @@ const WebSocket = require('ws');
 let player1
 
 const sessions = [1]
+let moves = []
 
     app.get('/',(req, res) => {
             res.render('main.ejs')
@@ -23,7 +24,12 @@ const sessions = [1]
       wss.on('connection', function connection(ws) {
 
         ws.on('message', function incoming(message) {
-          console.log(message.toString())
+          let messageToString = String(message);
+          let newMessage = messageToString.charAt(messageToString.length-1); //Last character of the message
+          let newMessageFirstCharacter = messageToString.substring(0, messageToString.length-1) //First character of the message
+          let newMessageFirstCharacterRemoved = messageToString.slice(1) // First character removed from message
+          let newMessageLastCharacterRemoved = newMessageFirstCharacterRemoved.slice(0, -1) // First and last character removed from message
+          console.log(newMessageLastCharacterRemoved)
           if (message == "Waiting") {
             if (player1 == undefined) {
               sessions.push(1)
@@ -34,6 +40,13 @@ const sessions = [1]
               ws.send(sessions.length + "2")
               player1 = undefined
             }
+          } 
+          else if (newMessage == "L") { //Updates array with players new move
+            moves.push(newMessage)
+          }
+          else if (newMessageFirstCharacter == "R") { //Sends playerx any new moves done by playery
+            moves.find
+            ws.send()
           }
         });
       });

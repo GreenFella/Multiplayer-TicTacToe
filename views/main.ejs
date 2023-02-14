@@ -9,7 +9,7 @@
 </head>
 <body>
   <button onclick="findPlayerButton()">Find a second player</button> <br>
-  <button onclick="styleToggle()">Start</button>
+  <button onclick="styleToggle(), ready()">Ready</button>
     <div class="content">
 
 <h1>TicTacToe</h1> <br> <br>
@@ -36,7 +36,7 @@
 <rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="white"/>
 
     <script>
-      
+
       window.addEventListener("load", (event) =>  {
         document.getElementById("circ1").classList.toggle("circ1css");
         document.getElementById("line1").classList.toggle("line1css");
@@ -57,27 +57,34 @@
       const socket = new WebSocket("ws://20.248.161.0:8081");
 
       function findPlayerButton() {
-        socket.addEventListener("open", e => {});
           socket.send("Waiting");
           socket.addEventListener('message', function (message) {
             console.log(message.data)
-            if (message.data.charAt(message.data.length-1) == "1") {
+            if (message.data.charAt(message.data.length-1) == "1") { //last digit returned is the player number ie. 1 or 2
               player = 1;
             }
-            else if (message.data.charAt(message.data.length-1) == "2") {
+            else if (message.data.charAt(message.data.length-1) == "2") { //last digit returned is the player number ie. 1 or 2
               player = 2;
             }
-            clientSession = message.data.substring(0, message.data.length-1)
+            clientSession = message.data.substring(0, message.data.length-1) //first number/s sent is the sessions number
           });
-
         }
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
-          socket.addEventListener("open", e => {});
-          socket.send(clientSession + player + locationNumber);
-
+          socket.send(clientSession + player + locationNumber + "L");
         }
+        
+        function ready () {
+        setInterval(retrieveUpdate, 250)
+
+        function retrieveUpdate() { //Requests a player update every 250 miliseconds from the server
+          socket.send("R" + clientSession + player);
+          socket.addEventListener('message', function (message) {
+
+          })
+        }
+      }
 
     </script>
   
