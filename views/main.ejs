@@ -72,7 +72,7 @@
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
-          socket.send(clientSession + player + locationNumber + "L");
+          socket.send({type: updateLocation, sessionId: clientSession, player: player, locationNumber: locationNumber});
         }
         
         function ready () {
@@ -81,7 +81,7 @@
         function retrieveUpdate() { //Requests a player update every 250 miliseconds from the server
           socket.send("R" + clientSession + player);
           socket.addEventListener('message', function (message) {
-
+            console.log(message.data)
           })
         }
       }
