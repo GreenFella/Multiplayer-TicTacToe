@@ -54,10 +54,11 @@
       let player
       let clientSession
 
-      const socket = new WebSocket("ws://20.248.161.0:8081");
+      const socket = new WebSocket("ws://localhost:8081");
 
       function findPlayerButton() {
-          socket.send("Waiting");
+          let objectWSFindPlayer = ({type: "waiting"})
+          socket.send(JSON.stringify(objectWSFindPlayer));
           socket.addEventListener('message', function (message) {
             console.log(message.data)
             if (message.data.charAt(message.data.length-1) == "1") { //last digit returned is the player number ie. 1 or 2
@@ -72,14 +73,16 @@
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
-          socket.send({type: updateLocation, sessionId: clientSession, player: player, locationNumber: locationNumber});
+          let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
+          socket.send(JSON.stringify(objectWSLocation));
         }
         
         function ready () {
         setInterval(retrieveUpdate, 250)
 
         function retrieveUpdate() { //Requests a player update every 250 miliseconds from the server
-          socket.send("R" + clientSession + player);
+          let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player})
+          socket.send(JSON.stringify(objectWSGetUpdate));
           socket.addEventListener('message', function (message) {
             console.log(message.data)
           })

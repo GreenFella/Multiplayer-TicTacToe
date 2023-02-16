@@ -23,15 +23,8 @@ let moves = []
       wss.on('connection', function connection(ws) {
 
         ws.on('message', function incoming(message) {
-          let messageToString = String(message);
-          let newMessageLastCharacter = messageToString.charAt(messageToString.length-1); //Last character of the message
-          let newMessageFirstCharacter = messageToString.slice(0, 1) //First character of the message
-          let newMessageFirstCharacterRemoved = messageToString.slice(1) // First character removed from message
-          let newMessageLastCharacterRemoved = messageToString.slice(0, -1) // Last character removed from message
-          let newMessageFirstAndLastCharacterRemoved = newMessageFirstCharacterRemoved.slice(0, -1) // First and last character removed from message
-          let newMessageLastThreeCharacterRemoved = messageToString.slice(0, -3) // Last three characters removed from message
-          console.log(messageToString)
-          if (message == "Waiting") {
+          let mesToJson = JSON.parse(message)
+          if (mesToJson.type == "waiting") {
             if (player1 == undefined) {
               sessions.push(1)
             ws.send(sessions.length + "1")
@@ -42,32 +35,26 @@ let moves = []
               player1 = undefined
             }
           } 
-          else if (newMessageLastCharacter == "L") { //Updates array with players new move
-            moves.push(newMessageLastCharacterRemoved)
-            console.log(newMessageLastCharacterRemoved)
-            console.log(moves)
+          else if (mesToJson.type == "updateLocation") { //Updates array with players new move
+            moves.push(mesToJson)
           }
-          else if (newMessageFirstCharacter == "R") { //Sends playerx any new moves done by playery. client set to request update every 250ms
+          else if (mesToJson.type == "getUpdate") { //Sends playerx any new moves done by playery. client set to request update every 250ms
             let checkPlayerNumber = reverseNumber()
             function reverseNumber () {
               var oppositePlayer
-              if (newMessageLastCharacter == "1") {
-                var oppositePlayer = "2"
+              if (mesToJson.player == "1") {
+                var oppositePlayer = 2
               }
-              else if (newMessageLastCharacter == "2") {
-                var oppositePlayer = "1"
+              else if (mesToJson.player == "2") {
+                var oppositePlayer = 1
               }
               return oppositePlayer
             }
-            let checkMoves = moves.find(newSessionMoves)
-            console.log(moves + " FIRSTCHECK " + checkPlayerNumber)
-            function newSessionMoves(moveCheck) {
-              return moveCheck == (newMessageFirstAndLastCharacterRemoved + checkPlayerNumber + ("1" || "2" || "3" || "4" || "5" || "6" || "7" || "8" || "9") )
-            }
-            console.log(checkMoves + " Move!!!!!!!!!!!!")
-            let playerLocationStringify = String(checkMoves)
-            let playerLocationSliced = playerLocationStringify.charAt(playerLocationStringify.length-1)
-            ws.send(playerLocationSliced)
+            let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
+            //let toObject = Object.fromEntries(checkMoves)
+            console.log(checkMoves)
+            console.log(checkMoves.locationNumber)
+            //ws.send(checkMoves)
           }
         });
       });
