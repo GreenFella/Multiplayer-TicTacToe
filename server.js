@@ -47,6 +47,10 @@ let moves = []
             }
           }
           else if (mesToJson.type == "updateLocation") { //Updates array with players new move
+            let index = moves.findIndex(item => item.sessionId == mesToJson.sessionId && item.player == mesToJson.player); //search the array for relevant items
+          if (index !== -1) {
+            moves.splice(index, 1); //remove the item at the array
+          }
             moves.push(mesToJson)
           }
           else if (mesToJson.type == "getUpdate") { //Sends playerx any new moves done by playery. client set to request update every 250ms
@@ -62,9 +66,11 @@ let moves = []
               return oppositePlayer
             }
             let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
-            /* if (checkMoves.locationNumber == undefined) {
-
-            }
+            if (checkMoves !== undefined) {
+              console.log(checkMoves)
+              console.log(checkMoves.locationNumber + " LOCATION NUMBER")
+              ws.send(checkMoves.locationNumber)
+            }/*
             console.log(checkMoves.locationNumber)
             //ws.send(checkMoves) */
           }

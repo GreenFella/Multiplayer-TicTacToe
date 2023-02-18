@@ -65,14 +65,14 @@
 <line id="line91" x1="480.5" y1="689" x2="690.5" y2="479" stroke="none" stroke-width="15"/>
 
 <rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="black"/>
-<rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="black"/>
-<rect class="rect3css" id="rect3" x="467.5" y="1.5" width="230" height="230" fill="black"/>
-<rect class="rect4css" id="rect4" x="1.5" y="234.5" width="230" height="230" fill="black"/>
-<rect class="rect5css" id="rect5" x="234.5" y="234.5" width="230" height="230" fill="black"/>
-<rect class="rect6css" id="rect6" x="467.5" y="234.5" width="230" height="230" fill="black"/>
-<rect class="rect7css" id="rect7" x="1.5" y="467.5" width="230" height="230" fill="black"/>
-<rect class="rect8css" id="rect8" x="234.5" y="467.5" width="230" height="230" fill="black"/>
-<rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="black"/>
+<rect class="rect2css" id="rect2" onclick="place(rect2.id)" x="234.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect3css" id="rect3" onclick="place(rect3.id)" x="467.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect4css" id="rect4" onclick="place(rect4.id)" x="1.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect5css" id="rect5" onclick="place(rect5.id)" x="234.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect6css" id="rect6" onclick="place(rect6.id)" x="467.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect7css" id="rect7" onclick="place(rect7.id)" x="1.5" y="467.5" width="230" height="230" fill="black"/>
+<rect class="rect8css" id="rect8" onclick="place(rect8.id)" x="234.5" y="467.5" width="230" height="230" fill="black"/>
+<rect class="rect9css" id="rect9" onclick="place(rect9.id)" x="467.5" y="467.5" width="230" height="230" fill="black"/>
 
 </svg>
 
@@ -179,7 +179,7 @@
           let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player})
           socket.send(JSON.stringify(objectWSGetUpdate));
           socket.addEventListener('message', function (message) {
-            
+            console.log(message.data)
           })
         }
       }
