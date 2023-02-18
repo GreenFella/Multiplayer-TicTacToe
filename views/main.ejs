@@ -4,72 +4,167 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <title>TicTacToe</title>
     <link rel="stylesheet" href="cssfile.css">
 </head>
-<body>
-  <button onclick="findPlayerButton()">Find a second player</button> <br>
-  <button onclick="styleToggle(), ready()">Ready</button>
-    <div class="content">
+<body style="background-color: black">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 
-<h1>TicTacToe</h1> <br> <br>
+    <div class="content">
+      <br> 
+<h1 style="color:white">TicTacToe</h1> <br>
+<h5 style="color:red" id="matchStatus">Press 'Find a match!' to begin searching for a match</h5>
+<button class="btn btn-primary" onclick="findPlayerButton()">Find a match!</button> <br> <br>
 
 <svg width="700" height="700">
 
-<line x1="233" y1="0" x2="233" y2="700" stroke="black"/>
-<line x1="466" y1="0" x2="466" y2="700" stroke="black"/>
-<line x1="0" y1="233" x2="700" y2="233" stroke="black"/>
-<line x1="0" y1="466" x2="700" y2="466" stroke="black"/>
+<line x1="233" y1="0" x2="233" y2="700" stroke="white"/>
+<line x1="466" y1="0" x2="466" y2="700" stroke="white"/>
+<line x1="0" y1="233" x2="700" y2="233" stroke="white"/>
+<line x1="0" y1="466" x2="700" y2="466" stroke="white"/>
 
-<circle id="circ1" class="circ1css" cx="116.5" cy="116.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ1" cx="116.5" cy="116.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ2" cx="349.5" cy="116.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ3" cx="582.5" cy="116.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ4" cx="116.5" cy="349.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ5" cx="349.5" cy="349.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ6" cx="582.5" cy="349.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ7" cx="116.5" cy="582.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ8" cx="349.5" cy="582.5" r="100" fill="none" stroke="none" stroke-width="15"/>
+<circle id="circ9" cx="582.5" cy="582.5" r="100" fill="none" stroke="none" stroke-width="15"/>
 
-<line id="line1" class="line1css" x1="11.5" y1="11.5" x2="210" y2="210" stroke="none" stroke-width="15"/>
+<!--210px between the x and y points-->
+<line id="line1" x1="11.5" y1="11.5" x2="221.5" y2="221.5" stroke="none" stroke-width="15"/>
+<line id="line11" x1="11.5" y1="221.5" x2="221.5" y2="11.5" stroke="none" stroke-width="15"/>
 
-<rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="white"/>
-<rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="white"/>
-<rect class="rect3css" id="rect3" x="467.5" y="1.5" width="230" height="230" fill="white"/>
-<rect class="rect4css" id="rect4" x="1.5" y="234.5" width="230" height="230" fill="white"/>
-<rect class="rect5css" id="rect5" x="234.5" y="234.5" width="230" height="230" fill="white"/>
-<rect class="rect6css" id="rect6" x="467.5" y="234.5" width="230" height="230" fill="white"/>
-<rect class="rect7css" id="rect7" x="1.5" y="467.5" width="230" height="230" fill="white"/>
-<rect class="rect8css" id="rect8" x="234.5" y="467.5" width="230" height="230" fill="white"/>
-<rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="white"/>
+<line id="line2" x1="246" y1="11.5" x2="456" y2="221.5" stroke="none" stroke-width="15"/>
+<line id="line21" x1="246" y1="221.5" x2="456" y2="11.5" stroke="none" stroke-width="15"/>
+
+<line id="line3" x1="480.5" y1="11.5" x2="690.5" y2="221.5" stroke="none" stroke-width="15"/>
+<line id="line31" x1="480.5" y1="221.5" x2="690.5" y2="11.5" stroke="none" stroke-width="15"/>
+
+<line id="line4" x1="11.5" y1="246" x2="221.5" y2="456" stroke="none" stroke-width="15"/>
+<line id="line41" x1="11.5" y1="456" x2="221.5" y2="246" stroke="none" stroke-width="15"/>
+
+<line id="line5" x1="246" y1="246" x2="456" y2="456" stroke="none" stroke-width="15"/>
+<line id="line51" x1="246" y1="456" x2="456" y2="246" stroke="none" stroke-width="15"/>
+
+<line id="line6" x1="480.5" y1="246" x2="690.5" y2="456" stroke="none" stroke-width="15"/>
+<line id="line61" x1="480.5" y1="456" x2="690.5" y2="246" stroke="none" stroke-width="15"/>
+
+<line id="line7" x1="11.5" y1="479" x2="221.5" y2="689" stroke="none" stroke-width="15"/>
+<line id="line71" x1="11.5" y1="689" x2="221.5" y2="479" stroke="none" stroke-width="15"/>
+
+<line id="line8" x1="246" y1="479" x2="456" y2="689" stroke="none" stroke-width="15"/>
+<line id="line81" x1="246" y1="689" x2="456" y2="479" stroke="none" stroke-width="15"/>
+
+<line id="line9" x1="480.5" y1="479" x2="690.5" y2="689" stroke="none" stroke-width="15"/>
+<line id="line91" x1="480.5" y1="689" x2="690.5" y2="479" stroke="none" stroke-width="15"/>
+
+<rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect2css" id="rect2" x="234.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect3css" id="rect3" x="467.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect4css" id="rect4" x="1.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect5css" id="rect5" x="234.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect6css" id="rect6" x="467.5" y="234.5" width="230" height="230" fill="black"/>
+<rect class="rect7css" id="rect7" x="1.5" y="467.5" width="230" height="230" fill="black"/>
+<rect class="rect8css" id="rect8" x="234.5" y="467.5" width="230" height="230" fill="black"/>
+<rect class="rect9css" id="rect9" x="467.5" y="467.5" width="230" height="230" fill="black"/>
+
+</svg>
+
+</div>
 
     <script>
 
-      window.addEventListener("load", (event) =>  {
-        document.getElementById("circ1").classList.toggle("circ1css");
-        document.getElementById("line1").classList.toggle("line1css");
-      })
+      let player
+      let clientSession
+      let toggled
+      let newInterval
 
-      function styleToggle () {
+      function styleToggle() {
         if (player == 1) {
-        document.getElementById("line1").classList.toggle("line1css");
+          let lineArray = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
+          lineArray.forEach(newStyleFunc)
+          function newStyleFunc (lineValue) {
+            document.getElementById(lineValue).style.stroke = "white";
+          }
+        toggled = 1
         }
-        else {
-          document.getElementById("circ1").classList.toggle("circ1css");
+        else if (player == 2) {
+          let circArray = ["circ1", "circ2", "circ3", "circ4", "circ5", "circ6", "circ7", "circ8", "circ9"]
+          circArray.forEach(newStyleFuncCirc)
+          function newStyleFuncCirc (circValue) {
+            document.getElementById(circValue).style.stroke = "white";
+          }
+          toggled = 2
         }
       }
 
-      let player
-      let clientSession
-
       const socket = new WebSocket("ws://localhost:8081");
 
-      function findPlayerButton() {
+      function findPlayerButton() { 
+        if (toggled == 1) {
+          let lineArraySecond = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
+          lineArraySecond.forEach(newStyleFuncSecond)
+          function newStyleFuncSecond (lineValueSecond) {
+            document.getElementById(lineValueSecond).style.stroke = "none";
+          }
+        }
+        else if (toggled == 2) {
+          let circArraySecond = ["circ1", "circ2", "circ3", "circ4", "circ5", "circ6", "circ7", "circ8", "circ9"]
+          circArraySecond.forEach(newStyleFuncCircSecond)
+          function newStyleFuncCircSecond (circValueSecond) {
+            document.getElementById(circValueSecond).style.stroke = "none";
+          }
+        } 
+        toggled = undefined; 
+        player = undefined; 
+        clientSession = undefined;
           let objectWSFindPlayer = ({type: "waiting"})
           socket.send(JSON.stringify(objectWSFindPlayer));
+
           socket.addEventListener('message', function (message) {
-            console.log(message.data)
-            if (message.data.charAt(message.data.length-1) == "1") { //last digit returned is the player number ie. 1 or 2
+            let messageJson = JSON.parse(message.data)
+            console.log(messageJson)
+            if (messageJson.playerNum == "1") {
+              clientSession = messageJson.sessionIdServer
               player = 1;
+              document.getElementById("matchStatus").innerHTML = "Searching for second player..."
+              styleToggle()
+              playerFound()
+              function playerFound () {
+                clearInterval(newInterval);
+                newInterval = setInterval(retrievePlayerUpdate, 250)
+                function retrievePlayerUpdate() { //Requests a update every 250 miliseconds from the server if a player is found
+                  let objectWSGetPlayerUpdate = ({type: "getPlayerUpdate", sessionId: clientSession, player: player})
+                  socket.send(JSON.stringify(objectWSGetPlayerUpdate));
+
+                  socket.addEventListener('message', function (message) {
+                    let messageJsonFound = JSON.parse(message.data)
+                    if (messageJsonFound.messageType == "foundPlayer") {
+                      document.getElementById("matchStatus").innerHTML = "Player found, begin!";
+                      document.getElementById("matchStatus").style.color = "green";
+                      ready();
+                      clearInterval(newInterval);
+                    }
+                  })
+                }
             }
-            else if (message.data.charAt(message.data.length-1) == "2") { //last digit returned is the player number ie. 1 or 2
+          }
+            else if (messageJson.playerNum == "2") {
+              clientSession = messageJson.sessionIdServer
               player = 2;
-            }
-            clientSession = message.data.substring(0, message.data.length-1) //first number/s sent is the sessions number
+              document.getElementById("matchStatus").innerHTML = "Player found, begin!"
+              document.getElementById("matchStatus").style.color = "green";
+              ready()
+              styleToggle()
+            } 
           });
-        }
+        } 
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
@@ -84,15 +179,12 @@
           let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player})
           socket.send(JSON.stringify(objectWSGetUpdate));
           socket.addEventListener('message', function (message) {
-            console.log(message.data)
+            
           })
         }
       }
 
     </script>
   
-</svg>
-
-</div>
 </body>
 </html>

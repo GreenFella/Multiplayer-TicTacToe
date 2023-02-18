@@ -6,34 +6,26 @@
     opacity: 0;
 }
 .rect2css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect3css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect4css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect5css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect6css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect7css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect8css:hover {
-    fill: yellow;
+    opacity: 0;
 }
 .rect9css:hover {
-    fill: yellow;
-}
-
-.circ1css {
-    stroke: black;
-}
-
-.line1css {
-    stroke: black;
+    opacity: 0;
 }

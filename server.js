@@ -11,7 +11,8 @@ const WebSocket = require('ws');
     app.use(express.static('public'))
 
 let player1
-const sessions = [1]
+const sessions = []
+const sessionsPlayerCount = []
 let moves = []
 
     app.get('/',(req, res) => {
@@ -27,14 +28,24 @@ let moves = []
           if (mesToJson.type == "waiting") {
             if (player1 == undefined) {
               sessions.push(1)
-            ws.send(sessions.length + "1")
+            let sendPlayerInfoWS = ({messageType: "sendPlayerInfo", sessionIdServer: sessions.length, playerNum: "1"})
+            ws.send(JSON.stringify(sendPlayerInfoWS))
             player1 = 1;
             }
-            else {
-              ws.send(sessions.length + "2")
+            else if (player1 = 1) {
+              let sendPlayerInfoWS = ({messageType: "sendPlayerInfo", sessionIdServer: sessions.length, playerNum: "2"})
+            ws.send(JSON.stringify(sendPlayerInfoWS))
               player1 = undefined
+              sessionsPlayerCount.push(sessions.length)
             }
           } 
+          else if (mesToJson.type == "getPlayerUpdate") { //Client asking if they have someone to play against yet
+            let sessionsPlayerCountFind = sessionsPlayerCount.find(item => item == mesToJson.sessionId)
+            if (sessionsPlayerCountFind !== undefined) {
+              let sendFoundPlayerInfoWS = ({messageType: "foundPlayer"})
+            ws.send(JSON.stringify(sendFoundPlayerInfoWS))
+            }
+          }
           else if (mesToJson.type == "updateLocation") { //Updates array with players new move
             moves.push(mesToJson)
           }
@@ -51,10 +62,11 @@ let moves = []
               return oppositePlayer
             }
             let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
-            //let toObject = Object.fromEntries(checkMoves)
-            console.log(checkMoves)
+            /* if (checkMoves.locationNumber == undefined) {
+
+            }
             console.log(checkMoves.locationNumber)
-            //ws.send(checkMoves)
+            //ws.send(checkMoves) */
           }
         });
       });
