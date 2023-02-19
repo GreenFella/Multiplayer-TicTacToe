@@ -67,12 +67,11 @@ let moves = []
             }
             let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
             if (checkMoves !== undefined) {
-              console.log(checkMoves)
-              console.log(checkMoves.locationNumber + " LOCATION NUMBER")
               ws.send(checkMoves.locationNumber)
-            }/*
-            console.log(checkMoves.locationNumber)
-            //ws.send(checkMoves) */
+              if (checkMoves !== -1) {
+                moves.splice(checkMoves, 1); //remove the item at the array to stop it from spamming the client with messages
+              } 
+            }
           }
         });
       });
