@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <title>TicTacToe</title>
-    
+    <link rel="stylesheet" href="cssfile.css">
 
 <style>
   .content {
@@ -40,6 +40,9 @@
 .rect9css:hover {
     opacity: 0;
 }
+
+@font-face { font-family: silkscreen; src: url('slkscr.ttf'); }
+
 </style>
 
 </head>
@@ -50,9 +53,18 @@
 
     <div class="content">
       <br> 
-<h1 style="color:white">TicTacToe</h1>
-<h5 style="color:red" id="matchStatus">Press 'Find a match!' to begin searching for a match</h5>
-<button class="btn btn-primary" onclick="findPlayerButton()">Find a match!</button> <br> <br> <br>
+<h1 style="color:white; font-family:silkscreen">TicTacToe</h1>
+<h5 style="color:red; font-family:Monospace" id="matchStatus">Press 'Find a match!' to begin searching for a match</h5>
+<div class="container" style="height: 50px; width: 174px">
+  <button onclick="findPlayerButton()" style="color:white; font-family:Monospace" class="btn">Find a match!</button> 
+</div> <br> <br>
+
+<div id="myNav" class="overlay">
+  <div class="overlay-content">
+    <h1 id="endScreen"></h1>
+    <a href="" onclick="closeNav()">Continue...</a>
+  </div>
+</div>
 
 <svg width="700" height="700">
 
@@ -140,6 +152,14 @@
           }
         }
       }
+     
+      function openNav() {
+        document.getElementById("myNav").style.height = "100%";
+      }
+
+      function closeNav() {
+        document.getElementById("myNav").style.height = "0%";
+      }
       
       function winner() {
         let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
@@ -153,8 +173,9 @@
           let arrayMovesCheckerSecond = movesArrayFriendly.find(item => item == second)
           let arrayMovesCheckerThird = movesArrayFriendly.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
-            document.getElementById("matchStatus").innerHTML = "YOU WIN! press find a match to play again";
-            document.getElementById("matchStatus").style.color = "green";
+            document.getElementById("endScreen").innerHTML = "YOU WIN!";
+            document.getElementById("endScreen").style.color = "green";
+            openNav()
           }
         }
         winningCombinations.forEach(checkForWinnerOpponent)
@@ -167,8 +188,9 @@
           let arrayMovesCheckerSecond = movesArrayOpponent.find(item => item == second)
           let arrayMovesCheckerThird = movesArrayOpponent.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
-            document.getElementById("matchStatus").innerHTML = "YOU LOOSE! press find a match to play again";
-            document.getElementById("matchStatus").style.color = "red";
+            document.getElementById("endScreen").innerHTML = "YOU LOOSE!";
+            document.getElementById("endScreen").style.color = "red";
+            openNav()
           }
         }
       }
@@ -194,7 +216,9 @@
           function newStyleFuncRect (rectValue) {
             document.getElementById(rectValue).style.removeProperty('opacity');
           }
-        
+
+          document.getElementById("matchStatus").innerHTML = "Press 'Find a match!' to begin searching for a match"
+          document.getElementById("matchStatus").style.color = "red";
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
@@ -210,6 +234,7 @@
               clientSession = messageJson.sessionIdServer
               player = 1;
               document.getElementById("matchStatus").innerHTML = "Searching for second player..."
+              document.getElementById("matchStatus").style.color = "yellow";
               styleToggle()
               playerFound()
               function playerFound () {
@@ -257,6 +282,8 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
+            document.getElementById("matchStatus").innerHTML = "Opponents turn"
+            document.getElementById("matchStatus").style.color = "red";
           }
           if (player == 2) {
             let elementValueCirc = "circ" + locationNumber;
@@ -266,6 +293,8 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
+            document.getElementById("matchStatus").innerHTML = "Opponents turn"
+            document.getElementById("matchStatus").style.color = "red";
           }
           let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
           socket.send(JSON.stringify(objectWSLocation));
@@ -298,6 +327,8 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
+          document.getElementById("matchStatus").innerHTML = "Your turn!"
+          document.getElementById("matchStatus").style.color = "green";
         }
         else if (player == 2) {
           let elementValueLine = "line" + opMove;
@@ -311,6 +342,8 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
+          document.getElementById("matchStatus").innerHTML = "Your turn!"
+          document.getElementById("matchStatus").style.color = "green";
         }
       }
 

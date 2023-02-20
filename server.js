@@ -38,7 +38,7 @@ let moves = []
               player1 = undefined
               sessionsPlayerCount.push(sessions.length)
             }
-          } 
+          }
           else if (mesToJson.type == "getPlayerUpdate") { //Client asking if they have someone to play against yet
             let sessionsPlayerCountFind = sessionsPlayerCount.find(item => item == mesToJson.sessionId)
             if (sessionsPlayerCountFind !== undefined) {
