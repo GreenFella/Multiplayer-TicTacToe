@@ -99,7 +99,7 @@
 <line id="line9" x1="480.5" y1="479" x2="690.5" y2="689" stroke="none" stroke-width="15"/>
 <line id="line91" x1="480.5" y1="689" x2="690.5" y2="479" stroke="none" stroke-width="15"/>
 
-<rect class="rect1css" id="rect1" onclick="place(rect1.id)" x="1.5" y="1.5" width="230" height="230" fill="black"/>
+<rect class="rect1css" id="rect1" onclick="place(rect1.id), winner()" x="1.5" y="1.5" width="230" height="230" fill="black"/>
 <rect class="rect2css" id="rect2" onclick="place(rect2.id)" x="234.5" y="1.5" width="230" height="230" fill="black"/>
 <rect class="rect3css" id="rect3" onclick="place(rect3.id)" x="467.5" y="1.5" width="230" height="230" fill="black"/>
 <rect class="rect4css" id="rect4" onclick="place(rect4.id)" x="1.5" y="234.5" width="230" height="230" fill="black"/>
@@ -120,7 +120,8 @@
       let newInterval
       let readyInterval
       let opponentMove
-      let movesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let myTurn
 
       function styleToggle() {
@@ -136,6 +137,38 @@
           circArray.forEach(newStyleFuncCirc)
           function newStyleFuncCirc (circValue) {
             document.getElementById(circValue).style.stroke = "white";
+          }
+        }
+      }
+      
+      function winner() {
+        let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
+        winningCombinations.forEach(checkForWinnerFriendly)
+        function checkForWinnerFriendly (winnerValue) {
+          let stringIt = JSON.stringify(winnerValue)
+          let first = stringIt.charAt(stringIt.length-3)
+          let second = stringIt.charAt(stringIt.length-2)
+          let third = stringIt.charAt(stringIt.length-1)
+          let arrayMovesCheckerFirst = movesArrayFriendly.find(item => item == first)
+          let arrayMovesCheckerSecond = movesArrayFriendly.find(item => item == second)
+          let arrayMovesCheckerThird = movesArrayFriendly.find(item => item == third)
+          if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+            document.getElementById("matchStatus").innerHTML = "YOU WIN! press find a match to play again";
+            document.getElementById("matchStatus").style.color = "green";
+          }
+        }
+        winningCombinations.forEach(checkForWinnerOpponent)
+        function checkForWinnerOpponent (winnerValue) {
+          let stringIt = JSON.stringify(winnerValue)
+          let first = stringIt.charAt(stringIt.length-3)
+          let second = stringIt.charAt(stringIt.length-2)
+          let third = stringIt.charAt(stringIt.length-1)
+          let arrayMovesCheckerFirst = movesArrayOpponent.find(item => item == first)
+          let arrayMovesCheckerSecond = movesArrayOpponent.find(item => item == second)
+          let arrayMovesCheckerThird = movesArrayOpponent.find(item => item == third)
+          if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+            document.getElementById("matchStatus").innerHTML = "YOU LOOSE! press find a match to play again";
+            document.getElementById("matchStatus").style.color = "red";
           }
         }
       }
@@ -162,7 +195,8 @@
             document.getElementById(rectValue).style.removeProperty('opacity');
           }
         
-          movesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
           player = undefined; 
           clientSession = undefined;
@@ -210,8 +244,9 @@
 
         function place (location) {
           let locationNumber = location.charAt(location.length-1)
-          let checkMovesArray = movesArray.find(item => item == locationNumber)
-          if (checkMovesArray == undefined && myTurn == 1) {
+          let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
+          let checkFriendlyMovesArray = movesArrayFriendly.find(item => item == locationNumber)
+          if (checkMovesArray == undefined && checkFriendlyMovesArray == undefined && myTurn == 1) {
             if (player == 1) {
             let elementValueLine = "line" + locationNumber;
             let elementValueLineSecond = "line" + locationNumber + "1";
@@ -219,14 +254,18 @@
             document.getElementById(elementValueLine).style.stroke = "white";
             document.getElementById(elementValueLineSecond).style.stroke = "white";
             document.getElementById(elementStyleRectLine).style.opacity = "0";
+            movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
+            winner()
           }
           if (player == 2) {
             let elementValueCirc = "circ" + locationNumber;
             let elementStyleRectCirc = "rect" + locationNumber;
             document.getElementById(elementValueCirc).style.stroke = "white";
             document.getElementById(elementStyleRectCirc).style.opacity = "0";
+            movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
+            winner()
           }
           let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
           socket.send(JSON.stringify(objectWSLocation));
@@ -256,8 +295,9 @@
           document.getElementById(elementStyleRectCirc).style.opacity = "0";
           document.getElementById(elementValueCircLine).style.stroke = "none";
           document.getElementById(elementValueCircLineSecond).style.stroke = "none";
-          movesArray.splice(opMove, 0, opMove)
+          movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
+          winner()
         }
         else if (player == 2) {
           let elementValueLine = "line" + opMove;
@@ -268,8 +308,9 @@
           document.getElementById(elementValueSecondLine).style.stroke = "white";
           document.getElementById(elementStyleRectLine).style.opacity = "0";
           document.getElementById(elementValueLineCirc).style.stroke = "none";
-          movesArray.splice(opMove, 0, opMove)
+          movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
+          winner()
         }
       }
 
