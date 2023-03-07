@@ -134,6 +134,7 @@
       let opponentMove
       let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let myTurn
 
       function styleToggle() {
@@ -161,7 +162,7 @@
         document.getElementById("myNav").style.height = "0%";
       }
       
-      function winner() {
+      function winner() { //This function checks if the game has a winner after each move
         let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
         winningCombinations.forEach(checkForWinnerFriendly)
         function checkForWinnerFriendly (winnerValue) {
@@ -195,6 +196,24 @@
         }
       }
 
+      function draw() { //This function checks if the game is a draw after each move
+	      combinedArr = movesArrayOpponent.map((val, index) => {
+		      if (val === 0) {
+			      return movesArrayFriendly[index];
+		      } else {
+			      return val;
+		      }
+	      });
+	      combinedArr[0] = 1;
+	      let arrayMovesCheckerDraw = combinedArr.find(item => item == 0)
+	      console.log(combinedArr)
+	      if (arrayMovesCheckerDraw == undefined) {
+		      document.getElementById("endScreen").innerHTML = "ITS A DRAW!";
+		      document.getElementById("endScreen").style.color = "yellow";
+		      openNav()
+	      }
+      }
+
       const socket = new WebSocket("ws://localhost:8081");
 
       function findPlayerButton() { 
@@ -221,21 +240,19 @@
           document.getElementById("matchStatus").style.color = "red";
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
           player = undefined; 
           clientSession = undefined;
           let objectWSFindPlayer = ({type: "waiting"})
           socket.send(JSON.stringify(objectWSFindPlayer));
-
           socket.addEventListener('message', function (message) {
             let messageJson = JSON.parse(message.data)
             console.log(messageJson)
             if (messageJson.playerNum == "1") {
               clientSession = messageJson.sessionIdServer
-              player = 1;
               document.getElementById("matchStatus").innerHTML = "Searching for second player..."
               document.getElementById("matchStatus").style.color = "yellow";
-              styleToggle()
               playerFound()
               function playerFound () {
                 clearInterval(newInterval);
@@ -243,7 +260,6 @@
                 function retrievePlayerUpdate() { //Requests a update every 250 miliseconds from the server if a player is found
                   let objectWSGetPlayerUpdate = ({type: "getPlayerUpdate", sessionId: clientSession, player: player})
                   socket.send(JSON.stringify(objectWSGetPlayerUpdate));
-
                   socket.addEventListener('message', function (message) {
                     let messageJsonFound = JSON.parse(message.data)
                     if (messageJsonFound.messageType == "foundPlayer") {
@@ -251,6 +267,8 @@
                       document.getElementById("matchStatus").style.color = "green";
                       ready();
                       clearInterval(newInterval);
+                      player = 1;
+                      styleToggle()
                     }
                   })
                 }
@@ -282,6 +300,7 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
+            draw()
             document.getElementById("matchStatus").innerHTML = "Opponents turn"
             document.getElementById("matchStatus").style.color = "red";
           }
@@ -293,6 +312,7 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
+            draw()
             document.getElementById("matchStatus").innerHTML = "Opponents turn"
             document.getElementById("matchStatus").style.color = "red";
           }
@@ -327,6 +347,7 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
+          draw()
           document.getElementById("matchStatus").innerHTML = "Your turn!"
           document.getElementById("matchStatus").style.color = "green";
         }
@@ -342,6 +363,7 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
+          draw()
           document.getElementById("matchStatus").innerHTML = "Your turn!"
           document.getElementById("matchStatus").style.color = "green";
         }

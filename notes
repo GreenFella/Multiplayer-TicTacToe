@@ -1,0 +1,12 @@
+notes:
+-svg grid is 700 x 700
+-winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
+-233 width each square and 233 height each square
+-210px seperating each x/y point for the x's
+
+bugs/to add:
+-can place a nought/cross while game status is waiting for opponent (FIXED)
+-no finished screen on a draw
+-cant tell if other player has left the match
+-no time limit on turn
+-can be player two even if there is no player one making you just wait for player1 to do something
