@@ -6,7 +6,7 @@ notes:
 
 bugs/to add:
 -can place a nought/cross while game status is waiting for opponent (FIXED)
--no finished screen on a draw
+-no finished screen on a draw (FIXED)
 -cant tell if other player has left the match
 -no time limit on turn
 -can be player two even if there is no player one making you just wait for player1 to do something
