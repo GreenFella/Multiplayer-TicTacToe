@@ -7,6 +7,8 @@ notes:
 bugs/to add:
 -can place a nought/cross while game status is waiting for opponent (FIXED)
 -no finished screen on a draw (FIXED)
--cant tell if other player has left the match
--no time limit on turn
+-cant tell if other player has left the match (FIXED) seems to be buggy? cant reproduce errors??
 -can be player two even if there is no player one making you just wait for player1 to do something
+-TO ADD - no time limit on turn (easy)
+-TO ADD - a way to make a custom game, to play against a friend (medium)
+-TO ADD - a way to play against AI (hard)

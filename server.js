@@ -14,6 +14,7 @@ let player1
 const sessions = []
 const sessionsPlayerCount = []
 let moves = []
+let playerConnectionStatus = []
 
     app.get('/',(req, res) => {
             res.render('main.ejs')
@@ -39,6 +40,7 @@ let moves = []
               sessionsPlayerCount.push(sessions.length)
             }
           }
+          
           else if (mesToJson.type == "getPlayerUpdate") { //Client asking if they have someone to play against yet
             let sessionsPlayerCountFind = sessionsPlayerCount.find(item => item == mesToJson.sessionId)
             if (sessionsPlayerCountFind !== undefined) {
@@ -46,6 +48,7 @@ let moves = []
             ws.send(JSON.stringify(sendFoundPlayerInfoWS))
             }
           }
+
           else if (mesToJson.type == "updateLocation") { //Updates array with players new move
             let index = moves.findIndex(item => item.sessionId == mesToJson.sessionId && item.player == mesToJson.player); //search the array for relevant items
           if (index !== -1) {
@@ -53,7 +56,22 @@ let moves = []
           }
             moves.push(mesToJson)
           }
+
           else if (mesToJson.type == "getUpdate") { //Sends playerx any new moves done by playery. client set to request update every 250ms
+            
+            let indexActive = playerConnectionStatus.find(item => item.sessionId == mesToJson.sessionId && item.player == mesToJson.player); //search the array for relevant items
+            if (indexActive == undefined) {
+              playerConnectionStatus.push(mesToJson)
+            }
+            if (indexActive !== undefined) {
+              for (let i = playerConnectionStatus.length - 1; i >= 0; i--) {
+                if (playerConnectionStatus[i].sessionId == mesToJson.sessionId && playerConnectionStatus[i].player == mesToJson.player) {
+                  playerConnectionStatus.splice(i, 1);
+                }
+              }
+              playerConnectionStatus.push(mesToJson)
+            }
+        
             let checkPlayerNumber = reverseNumber()
             function reverseNumber () {
               var oppositePlayer
@@ -65,12 +83,22 @@ let moves = []
               }
               return oppositePlayer
             }
+
+            let opponentActiveStatus = playerConnectionStatus.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber); //search the array for relevant items
             let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
-            if (checkMoves !== undefined) {
-              ws.send(checkMoves.locationNumber)
-              if (checkMoves !== -1) {
-                moves.splice(checkMoves, 1); //remove the item at the array to stop it from spamming the client with messages
-              } 
+            if (opponentActiveStatus !== undefined) {
+              if (checkMoves == undefined) {
+                let sendPlayerInfoActiveMoves = ({locationNumberUpdate: "NA", activeStatusOpp: opponentActiveStatus.activeStatusMsg})
+                ws.send(JSON.stringify(sendPlayerInfoActiveMoves))
+              }
+              else if (checkMoves !== undefined) {
+                let locationNumberVar = checkMoves.locationNumber
+                let sendPlayerInfoActiveMoves = ({locationNumberUpdate: locationNumberVar, activeStatusOpp: opponentActiveStatus.activeStatusMsg})
+                ws.send(JSON.stringify(sendPlayerInfoActiveMoves))
+                if (checkMoves !== -1) {
+                  moves.splice(checkMoves, 1); //remove the item at the array to stop it from spamming the client with messages
+                }
+              }
             }
           }
         });
