@@ -6,9 +6,20 @@ notes:
 
 bugs/to add:
 -can place a nought/cross while game status is waiting for opponent (FIXED)
+
+
 -no finished screen on a draw (FIXED)
+
+
 -cant tell if other player has left the match (FIXED) seems to be buggy? cant reproduce errors??
+
+
 -can be player two even if there is no player one making you just wait for player1 to do something
+IDEAS if you get player two and it detects there is not opponent using a new function that tics every 250 ms it will go to a new session and do the check again (if you get player 2 again) until a player is found (FIXED)
+
+-game draws when all squares are filled and the last square someone wins.. it still says draw
+
 -TO ADD - no time limit on turn (easy)
+-TO ADD - custom player name (easy)
 -TO ADD - a way to make a custom game, to play against a friend (medium)
 -TO ADD - a way to play against AI (hard)

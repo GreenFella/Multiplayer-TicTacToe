@@ -132,6 +132,7 @@
       let newInterval
       let readyInterval
       let checkInterval
+      let checkIntervalSecond
       let opponentMove
       let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -210,7 +211,6 @@
 	      });
 	      combinedArr[0] = 1;
 	      let arrayMovesCheckerDraw = combinedArr.find(item => item == 0)
-	      console.log(combinedArr)
 	      if (arrayMovesCheckerDraw == undefined) {
 		      document.getElementById("endScreen").innerHTML = "ITS A DRAW!";
 		      document.getElementById("endScreen").style.color = "yellow";
@@ -220,8 +220,13 @@
 
       const socket = new WebSocket("ws://localhost:8081");
 
-      function findPlayerButton() { 
-        
+      function setStatusMsgSearchingForSecondPlayer() {
+        document.getElementById("matchStatus").innerHTML = "Searching for second player..."
+        document.getElementById("matchStatus").style.color = "yellow";
+      }
+
+      function findPlayerButton() {
+          
           let lineArraySecond = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArraySecond.forEach(newStyleFuncSecond)
           function newStyleFuncSecond (lineValueSecond) {
@@ -240,28 +245,38 @@
             document.getElementById(rectValue).style.removeProperty('opacity');
           }
 
-          document.getElementById("matchStatus").innerHTML = "Press 'Find a match!' to begin searching for a match"
-          document.getElementById("matchStatus").style.color = "red";
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
-          player = undefined; 
-          clientSession = undefined;
           activeStatus = 0;
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
+          clearInterval(newInterval)
+          clearInterval(readyInterval)
+          clearInterval(checkInterval)
+          clearInterval(checkIntervalSecond)
           let objectWSFindPlayer = ({type: "waiting"})
           socket.send(JSON.stringify(objectWSFindPlayer));
-          socket.addEventListener('message', function (message) {
+          setStatusMsgSearchingForSecondPlayer()
+          function handleMessage(message) {
             let messageJson = JSON.parse(message.data)
             console.log(messageJson)
+            if (player == 1 && clientSession == messageJson.sessionIdServer) {
+              socket.removeEventListener('message', handleMessage);
+              player = undefined;
+              clientSession = undefined;
+              findPlayerButton()
+            }
+            else {
+            socket.removeEventListener('message', handleMessage);
             if (messageJson.playerNum == "1") {
               clientSession = messageJson.sessionIdServer
-              document.getElementById("matchStatus").innerHTML = "Searching for second player..."
-              document.getElementById("matchStatus").style.color = "yellow";
+              player = 1;
+              setStatusMsgSearchingForSecondPlayer()
               playerFound()
               function playerFound () {
+                ready();
                 clearInterval(newInterval);
                 newInterval = setInterval(retrievePlayerUpdate, 250)
                 function retrievePlayerUpdate() { //Requests a update every 250 miliseconds from the server if a player is found
@@ -270,28 +285,26 @@
                   socket.addEventListener('message', function (message) {
                     let messageJsonFound = JSON.parse(message.data)
                     if (messageJsonFound.messageType == "foundPlayer") {
-                      document.getElementById("matchStatus").innerHTML = "Player found, begin!";
-                      document.getElementById("matchStatus").style.color = "green";
-                      ready();
                       clearInterval(newInterval);
                       player = 1;
                       styleToggle()
                       checkForDisconnect()
+                      document.getElementById("matchStatus").innerHTML = "Player found, begin!!!!!!!!!!!";
+                      document.getElementById("matchStatus").style.color = "green";
                     }
                   })
                 }
             }
           }
             else if (messageJson.playerNum == "2") {
+              player = undefined;
+              clientSession = undefined;
               clientSession = messageJson.sessionIdServer
-              player = 2;
-              document.getElementById("matchStatus").innerHTML = "Player found, begin!"
-              document.getElementById("matchStatus").style.color = "green";
-              ready()
-              styleToggle()
-              checkForDisconnect()
-            } 
-          });
+              checkForOpponent()
+            }
+          }
+          };
+          socket.addEventListener('message', handleMessage);
         } 
 
         function place (location) {
@@ -329,22 +342,6 @@
           socket.send(JSON.stringify(objectWSLocation));
           }
         }
-        
-        function ready () {
-        clearInterval(readyInterval);
-        readyInterval = setInterval(retrieveUpdate, 250)
-
-        function retrieveUpdate() { //Requests a player update every 250 miliseconds from the server
-          let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player, activeStatusMsg: activeStatus})
-          socket.send(JSON.stringify(objectWSGetUpdate));
-          activeStatus++
-          socket.addEventListener('message', function (message) {
-            let messageToJson = JSON.parse(message.data)
-            updateOpponentMove(messageToJson.locationNumberUpdate)
-            opponentActiveStatus = messageToJson.activeStatusOpp;
-          })
-        }
-      }
 
       function checkForDisconnect() {
         clearInterval(checkInterval);
@@ -355,9 +352,52 @@
             document.getElementById("endScreen").innerHTML = "OPPONENT HAS DISCONNECTED!";
 		        document.getElementById("endScreen").style.color = "red";
 		        openNav()
+            clearInterval(checkInterval)
           }
           else {
           connectionCheckerStatus = opponentActiveStatus
+        }
+        }
+      }
+
+      function ready() {
+        clearInterval(readyInterval);
+        readyInterval = setInterval(retrieveUpdate, 100)
+
+        function retrieveUpdate() { //Requests a player update every 250 miliseconds from the server
+          let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player, activeStatusMsg: activeStatus})
+          socket.send(JSON.stringify(objectWSGetUpdate));
+          activeStatus++
+          console.log(activeStatus + " YAAAAAAAAAAAAAAAAAAAAAAAAAAAARN")
+          socket.addEventListener('message', function (message) {
+            let messageToJson = JSON.parse(message.data)
+            updateOpponentMove(messageToJson.locationNumberUpdate)
+            console.log(messageToJson.activeStatusOpp + " OPP STATUS")
+            opponentActiveStatus = messageToJson.activeStatusOpp;
+          })
+        }
+      }
+
+//this function checks if opponentActiveStatus == connectionCheckerStatus but connectionCheckerStatus doesent run and always stays as 0 because the above function never gets run??
+//seems to be a timing related issue, setting the below interval to 2500 makes it sort of work on the first round
+//SOMETIMES it changes player 2 to player 1 even if a match is found
+      function checkForOpponent() {
+        player = 2;
+        ready()
+        clearInterval(checkIntervalSecond);
+        checkIntervalSecond = setInterval(retrieveUpdateOpponent, 2500)
+        
+        function retrieveUpdateOpponent() { //Checks if theres an opponent status every 2500 miliseconds
+          if (opponentActiveStatus == connectionCheckerStatus) {
+            findPlayerButton()
+            clearInterval(checkIntervalSecond);
+          }
+          else {
+              document.getElementById("matchStatus").innerHTML = "Player found, begin!"
+              document.getElementById("matchStatus").style.color = "green";
+              styleToggle()
+              checkForDisconnect()
+              clearInterval(checkIntervalSecond);
         }
         }
       }
