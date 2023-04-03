@@ -244,7 +244,6 @@
         checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
         
         function retrieveUpdateConnection() { //Waits 2501 ms to allow connections
-          gameStart = 1
           styleToggle()
           setStatusMsg("Player found, begin!", "green")
           clearInterval(checkIntervalGameStart)
@@ -402,7 +401,6 @@
             clearInterval(checkIntervalSecond);
           }
           else {
-              gameStart = 1
               setStatusMsg("Player found, begin!", "green")
               styleToggle()
               checkForDisconnect()

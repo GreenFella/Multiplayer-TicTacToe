@@ -5,7 +5,9 @@ notes:
 -210px seperating each x/y point for the x's
 
 bugs/to add:
--can place a nought/cross while game status is waiting for opponent (FIXED)
+-can place a nought/cross while game status is waiting for opponent
+causes a glitch on the opponents screen where it display noughts and crosses in the same field
+maybe make it so nothing can be touched until 2.5 seconds after players found
 
 
 -no finished screen on a draw (FIXED)
