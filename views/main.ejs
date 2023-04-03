@@ -128,6 +128,7 @@
     <script>
 
       let player
+      let oldMove
       let clientSession
       let newInterval
       let readyInterval
@@ -175,6 +176,24 @@
           }
         }
       }
+
+      function draw() { //This function checks if the game is a draw after each move
+	      combinedArr = movesArrayOpponent.map((val, index) => {
+		      if (val === 0) {
+			      return movesArrayFriendly[index];
+		      } else {
+			      return val;
+		      }
+	      });
+	      combinedArr[0] = 1;
+	      let arrayMovesCheckerDraw = combinedArr.find(item => item == 0)
+	      if (arrayMovesCheckerDraw == undefined) {
+          setEndScreen("ITS A DRAW!", "yellow")
+          gameStart = 0
+          clearInterval(readyInterval)
+          clearInterval(checkInterval)
+	      }
+      }
       
       function winner() { //This function checks if the game has a winner after each move
         let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
@@ -189,36 +208,32 @@
           let arrayMovesCheckerThird = movesArrayFriendly.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU WIN!", "green")
+            gameStart = 0
+            clearInterval(readyInterval)
+            clearInterval(checkInterval)
           }
-        }
-        winningCombinations.forEach(checkForWinnerOpponent)
-        function checkForWinnerOpponent (winnerValue) {
-          let stringIt = JSON.stringify(winnerValue)
-          let first = stringIt.charAt(stringIt.length-3)
-          let second = stringIt.charAt(stringIt.length-2)
-          let third = stringIt.charAt(stringIt.length-1)
-          let arrayMovesCheckerFirst = movesArrayOpponent.find(item => item == first)
-          let arrayMovesCheckerSecond = movesArrayOpponent.find(item => item == second)
-          let arrayMovesCheckerThird = movesArrayOpponent.find(item => item == third)
+          else {
+            winningCombinations.forEach(checkForWinnerOpponent)
+            function checkForWinnerOpponent (winnerValue) {
+            let stringIt = JSON.stringify(winnerValue)
+            let first = stringIt.charAt(stringIt.length-3)
+            let second = stringIt.charAt(stringIt.length-2)
+            let third = stringIt.charAt(stringIt.length-1)
+            let arrayMovesCheckerFirst = movesArrayOpponent.find(item => item == first)
+            let arrayMovesCheckerSecond = movesArrayOpponent.find(item => item == second)
+            let arrayMovesCheckerThird = movesArrayOpponent.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU LOOSE!", "red")
+            gameStart = 0
+            clearInterval(readyInterval)
+            clearInterval(checkInterval)
+          }
+          else if (gameStart == 1) {
+            draw()
+              }
+            }
           }
         }
-      }
-
-      function draw() { //This function checks if the game is a draw after each move
-	      combinedArr = movesArrayOpponent.map((val, index) => {
-		      if (val === 0) {
-			      return movesArrayFriendly[index];
-		      } else {
-			      return val;
-		      }
-	      });
-	      combinedArr[0] = 1;
-	      let arrayMovesCheckerDraw = combinedArr.find(item => item == 0)
-	      if (arrayMovesCheckerDraw == undefined) {
-          setEndScreen("ITS A DRAW!", "yellow")
-	      }
       }
 
       const socket = new WebSocket("ws://localhost:8081");
@@ -232,6 +247,7 @@
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
           gameStart = 0;
+          oldMove = undefined;
           clearInterval(newInterval)
           clearInterval(readyInterval)
           clearInterval(checkInterval)
@@ -303,9 +319,7 @@
                     if (messageJsonFound.messageType == "foundPlayer") {
                       clearInterval(newInterval);
                       player = 1;
-                      //styleToggle()
                       checkForDisconnect()
-                      //setStatusMsg("Player found, begin!", "green")
                       startTheGame()
                     }
                   })
@@ -339,7 +353,6 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            draw()
             setStatusMsg("Opponents turn", "red")
           }
           if (player == 2) {
@@ -350,7 +363,6 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            draw()
             setStatusMsg("Opponents turn", "red")
           }
           let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
@@ -382,11 +394,16 @@
           let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player, activeStatusMsg: activeStatus})
           socket.send(JSON.stringify(objectWSGetUpdate));
           activeStatus++
-          socket.addEventListener('message', function (message) {
+          function handleMessageInfo(message) {
             let messageToJson = JSON.parse(message.data)
-            updateOpponentMove(messageToJson.locationNumberUpdate)
+            if (messageToJson.locationNumberUpdate !== oldMove) {
+              socket.removeEventListener('message', handleMessageInfo);
+              updateOpponentMove(messageToJson.locationNumberUpdate)
+            }
             opponentActiveStatus = messageToJson.activeStatusOpp;
-          })
+            socket.removeEventListener('message', handleMessageInfo);
+        }
+        socket.addEventListener('message', handleMessageInfo);
         }
       }
 
@@ -411,8 +428,9 @@
         }
       }
 
-      function updateOpponentMove (opMove) {
-        if (opMove !== "NA") {
+      function updateOpponentMove(opMove) {
+        if (opMove !== "NA" && gameStart == 1) {
+          oldMove = opMove
         if (player == 1) {
           let elementValueCirc = "circ" + opMove;
           let elementStyleRectCirc = "rect" + opMove;
@@ -425,7 +443,6 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          draw()
           setStatusMsg("Your turn!", "green")
         }
         else if (player == 2) {
@@ -440,7 +457,6 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          draw()
           setStatusMsg("Your turn!", "green")
         }
       }

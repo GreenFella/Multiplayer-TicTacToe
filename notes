@@ -7,21 +7,25 @@ notes:
 bugs/to add:
 -can place a nought/cross while game status is waiting for opponent
 causes a glitch on the opponents screen where it display noughts and crosses in the same field
-maybe make it so nothing can be touched until 2.5 seconds after players found
+maybe make it so nothing can be touched until 2.5 seconds after players found (FIXED)
 
 
 -no finished screen on a draw (FIXED)
 
 
--cant tell if other player has left the match (FIXED) seems to be buggy? cant reproduce errors??
+-cant tell if other player has left the match (FIXED) seems to be buggy? cant reproduce errors?? (FIXED)
 
 
 -can be player two even if there is no player one making you just wait for player1 to do something
 IDEAS if you get player two and it detects there is not opponent using a new function that tics every 250 ms it will go to a new session and do the check again (if you get player 2 again) until a player is found (FIXED)
 
 -game draws when all squares are filled and the last square someone wins.. it still says draw
+it keeps running the draw/winner functions through the updateOpponentMove function which gets activated by the ready() function messages from the server
+harder to fix than expected, might have to fix the draw function itself
+(FIXED)
 
 -TO ADD - no time limit on turn (easy)
 -TO ADD - custom player name (easy)
+-TO ADD - way to play again against the same opponent as before (easy)
 -TO ADD - a way to make a custom game, to play against a friend (medium)
 -TO ADD - a way to play against AI (hard)

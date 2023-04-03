@@ -82,7 +82,6 @@ let playerConnectionStatus = []
               }
               return oppositePlayer
             }
-            console.log(mesToJson.activeStatusMsg + " " + mesToJson.player)
             let opponentActiveStatus = playerConnectionStatus.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber); //search the array for relevant items
             let checkMoves = moves.find(item => item.sessionId == mesToJson.sessionId && item.player == checkPlayerNumber)
             if (opponentActiveStatus !== undefined) {
