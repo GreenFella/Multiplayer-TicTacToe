@@ -127,6 +127,7 @@
 
     <script>
 
+//The below is just some variables being declared for the following code
       let player
       let oldMove
       let clientSession
@@ -135,6 +136,8 @@
       let checkInterval
       let checkIntervalSecond
       let checkIntervalGameStart
+      let checkIntervalMoveTimer
+      let checkIntervalMoveTimerOpponent
       let opponentMove
       let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -144,23 +147,34 @@
       let opponentActiveStatus = 0;
       let connectionCheckerStatus
       let gameStart = 0
+      let timeDetail = 1
 
-      function setStatusMsg(statusMsg, colour) {
+      function setStatusMsg(statusMsg, colour) { //This function changes the in game visible status message
         document.getElementById("matchStatus").innerHTML = statusMsg
         document.getElementById("matchStatus").style.color = colour;
       }
 
-      function setEndScreen(statusMsg, colour) {
+      function setStatusMsgTimer(statusMsg, colour) { //This function changes the in game visible status message, same as above but compatible with timer
+        document.getElementById("matchStatus").innerHTML = statusMsg + " seconds remaining on your turn"
+        document.getElementById("matchStatus").style.color = colour;
+      }
+
+      function setStatusMsgTimerOpponent(statusMsg, colour) { //This function changes the in game visible status message, same as above but compatible with timer
+        document.getElementById("matchStatus").innerHTML = statusMsg + " seconds remaining on opponents turn"
+        document.getElementById("matchStatus").style.color = colour;
+      }
+
+      function setEndScreen(statusMsg, colour) { //This function opens the end screen overaly
         document.getElementById("endScreen").innerHTML = statusMsg;
         document.getElementById("endScreen").style.color = colour;
         document.getElementById("myNav").style.height = "100%";
       }
 
-      function closeNav() {
+      function closeNav() { //This function closes the end screen overaly
         document.getElementById("myNav").style.height = "0%";
       }
 
-      function styleToggle() {
+      function styleToggle() { //This function enables the visible noughts or crosses, depending on which player you are
         if (player == 1) {
           let lineArray = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArray.forEach(newStyleFunc)
@@ -175,6 +189,46 @@
             document.getElementById(circValue).style.stroke = "white";
           }
         }
+      }
+
+      function moveTimerFriendly() { //This function sets a 30 second timer on each move, the game ends if a player exceeds the time limit
+        clearInterval(checkIntervalMoveTimer);
+        checkIntervalMoveTimer = setInterval(startMoveTimer, 1000)
+        timeDetail = 30
+        setStatusMsgTimer(timeDetail, "green")
+        
+        function startMoveTimer() {
+          timeDetail -= 1;
+          setStatusMsgTimer(timeDetail, "green")
+          if (timeDetail == 0) {
+            setEndScreen("YOU LOOSE! you ran out of time", "red")
+            stopIntervals()
+        }
+        }
+      }
+
+      function stopFriendlyTimer() { //This function stops the turn timer after you do your move
+        clearInterval(checkIntervalMoveTimer)
+      }
+
+      function moveTimerOpponent() { //This function sets a 30 second timer on each move, the game ends if a player exceeds the time limit
+        clearInterval(checkIntervalMoveTimerOpponent);
+        checkIntervalMoveTimerOpponent = setInterval(startMoveTimerOpponent, 1000)
+        timeDetail = 30
+        setStatusMsgTimerOpponent(timeDetail, "red")
+        
+        function startMoveTimerOpponent() {
+          timeDetail -= 1;
+          setStatusMsgTimerOpponent(timeDetail, "red")
+          if (timeDetail == 0) {
+            setEndScreen("YOU WIN! your opponent ran out of time", "green")
+            stopIntervals()
+        }
+        }
+      }
+
+      function stopOpponentTimer() { //This function stops the opponents turn timer after they do their move
+        clearInterval(checkIntervalMoveTimerOpponent)
       }
 
       function draw() { //This function checks if the game is a draw after each move
@@ -236,9 +290,9 @@
         }
       }
 
-      const socket = new WebSocket("ws://localhost:8081");
+      const socket = new WebSocket("ws://localhost:8081"); //Connects to the websocket server running the tictactoe server
 
-      function resetGameVariables() {
+      function resetGameVariables() { //This function resets all game variables for when a game is done
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -248,14 +302,27 @@
           connectionCheckerStatus = 0;
           gameStart = 0;
           oldMove = undefined;
+          timeDetail = 1
           clearInterval(newInterval)
           clearInterval(readyInterval)
           clearInterval(checkInterval)
           clearInterval(checkIntervalSecond)
           clearInterval(checkIntervalGameStart)
+          clearInterval(checkIntervalMoveTimer)
+          clearInterval(checkIntervalMoveTimerOpponent)
         }
 
-        function startTheGame() {
+        function stopIntervals() { //This function just stops any background timers/intervals/checks
+          clearInterval(newInterval)
+          clearInterval(readyInterval)
+          clearInterval(checkInterval)
+          clearInterval(checkIntervalSecond)
+          clearInterval(checkIntervalGameStart)
+          clearInterval(checkIntervalMoveTimer)
+          clearInterval(checkIntervalMoveTimerOpponent)
+        }
+
+        function startTheGame() { //This is a precaution to allow player connections 2501ms to complete before starting the game
         clearInterval(checkIntervalGameStart);
         checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
         
@@ -267,7 +334,7 @@
         }
       }
 
-      function findPlayerButton() {
+      function findPlayerButton() { //This is the primary function the user selects that starts the match making search
           
           let lineArraySecond = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArraySecond.forEach(newStyleFuncSecond)
@@ -337,7 +404,7 @@
           socket.addEventListener('message', handleMessage);
         } 
 
-        function place(location) {
+        function place(location) { //This function is activated every time the local player does a move, it sends the move to the tictactoe server and sets it locally aswell
           if (gameStart == 1) {
           let locationNumber = location.charAt(location.length-1)
           let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
@@ -353,7 +420,8 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            setStatusMsg("Opponents turn", "red")
+            stopFriendlyTimer()
+            moveTimerOpponent()
           }
           if (player == 2) {
             let elementValueCirc = "circ" + locationNumber;
@@ -363,7 +431,8 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            setStatusMsg("Opponents turn", "red")
+            stopFriendlyTimer()
+            moveTimerOpponent()
           }
           let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
           socket.send(JSON.stringify(objectWSLocation));
@@ -371,7 +440,7 @@
         }
         }
 
-      function checkForDisconnect() {
+      function checkForDisconnect() { //This function checks if the opponent has disconnected, it ends the game if the opponent has been unresponsive for over 5000ms
         clearInterval(checkInterval);
         checkInterval = setInterval(retrieveUpdateConnection, 5000)
         
@@ -386,7 +455,7 @@
         }
       }
 
-      function ready() {
+      function ready() { //This function sends the tictactoe server an update every 100ms asking for the opponents connection status, it also sends the local connection status which gets passed on to the opponent to confirm both users are still online
         clearInterval(readyInterval);
         readyInterval = setInterval(retrieveUpdate, 100)
 
@@ -407,7 +476,7 @@
         }
       }
 
-      function checkForOpponent() {
+      function checkForOpponent() { //This function only activates if you are player 2, it prevents loading into a game where there is no player 1 and will just automatically join a new game session if there is no player 1
         player = 2;
         ready()
         clearInterval(checkIntervalSecond);
@@ -428,7 +497,7 @@
         }
       }
 
-      function updateOpponentMove(opMove) {
+      function updateOpponentMove(opMove) { //This function gets called from the ready() function with data about whether the opponent has done a new move yet, if a new move is done it places the move locally to be visible on screen
         if (opMove !== "NA" && gameStart == 1) {
           oldMove = opMove
         if (player == 1) {
@@ -443,7 +512,8 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          setStatusMsg("Your turn!", "green")
+          stopOpponentTimer()
+          moveTimerFriendly()
         }
         else if (player == 2) {
           let elementValueLine = "line" + opMove;
@@ -457,7 +527,8 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          setStatusMsg("Your turn!", "green")
+          stopOpponentTimer()
+          moveTimerFriendly()
         }
       }
       }
