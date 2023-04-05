@@ -164,10 +164,11 @@
         document.getElementById("matchStatus").style.color = colour;
       }
 
-      function setEndScreen(statusMsg, colour) { //This function opens the end screen overaly
+      function setEndScreen(statusMsg, colour) { //This function opens the end screen overaly and cancels any active code
         document.getElementById("endScreen").innerHTML = statusMsg;
         document.getElementById("endScreen").style.color = colour;
         document.getElementById("myNav").style.height = "100%";
+        stopIntervals()
       }
 
       function closeNav() { //This function closes the end screen overaly
@@ -191,7 +192,7 @@
         }
       }
 
-      function moveTimerFriendly() { //This function sets a 30 second timer on each move, the game ends if a player exceeds the time limit
+      function moveTimerFriendly() { //This function sets a 30 second timer on each of the local players move, the game ends if a player exceeds the time limit
         clearInterval(checkIntervalMoveTimer);
         checkIntervalMoveTimer = setInterval(startMoveTimer, 1000)
         timeDetail = 30
@@ -202,7 +203,6 @@
           setStatusMsgTimer(timeDetail, "green")
           if (timeDetail == 0) {
             setEndScreen("YOU LOOSE! you ran out of time", "red")
-            stopIntervals()
         }
         }
       }
@@ -211,7 +211,7 @@
         clearInterval(checkIntervalMoveTimer)
       }
 
-      function moveTimerOpponent() { //This function sets a 30 second timer on each move, the game ends if a player exceeds the time limit
+      function moveTimerOpponent() { //This function sets a 30 second timer on each of the opponents move, the game ends if a player exceeds the time limit
         clearInterval(checkIntervalMoveTimerOpponent);
         checkIntervalMoveTimerOpponent = setInterval(startMoveTimerOpponent, 1000)
         timeDetail = 30
@@ -222,7 +222,6 @@
           setStatusMsgTimerOpponent(timeDetail, "red")
           if (timeDetail == 0) {
             setEndScreen("YOU WIN! your opponent ran out of time", "green")
-            stopIntervals()
         }
         }
       }
@@ -244,8 +243,6 @@
 	      if (arrayMovesCheckerDraw == undefined) {
           setEndScreen("ITS A DRAW!", "yellow")
           gameStart = 0
-          clearInterval(readyInterval)
-          clearInterval(checkInterval)
 	      }
       }
       
@@ -263,8 +260,6 @@
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU WIN!", "green")
             gameStart = 0
-            clearInterval(readyInterval)
-            clearInterval(checkInterval)
           }
           else {
             winningCombinations.forEach(checkForWinnerOpponent)
@@ -279,8 +274,6 @@
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU LOOSE!", "red")
             gameStart = 0
-            clearInterval(readyInterval)
-            clearInterval(checkInterval)
           }
           else if (gameStart == 1) {
             draw()
@@ -303,13 +296,7 @@
           gameStart = 0;
           oldMove = undefined;
           timeDetail = 1
-          clearInterval(newInterval)
-          clearInterval(readyInterval)
-          clearInterval(checkInterval)
-          clearInterval(checkIntervalSecond)
-          clearInterval(checkIntervalGameStart)
-          clearInterval(checkIntervalMoveTimer)
-          clearInterval(checkIntervalMoveTimerOpponent)
+          stopIntervals()
         }
 
         function stopIntervals() { //This function just stops any background timers/intervals/checks
@@ -447,7 +434,6 @@
         function retrieveUpdateConnection() { //Checks player connection status every 5000 miliseconds
           if (opponentActiveStatus == connectionCheckerStatus) {
             setEndScreen("OPPONENT HAS DISCONNECTED!", "red")
-            clearInterval(checkInterval)
           }
           else {
           connectionCheckerStatus = opponentActiveStatus
