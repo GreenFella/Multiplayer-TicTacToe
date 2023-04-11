@@ -56,8 +56,10 @@
 <h1 style="color:white; font-family:silkscreen">TicTacToe</h1>
 <h5 style="color:red; font-family:Monospace" id="matchStatus">Press 'Find a match!' to begin searching for a match</h5>
 <div class="container" style="height: 50px; width: 174px">
-  <button onclick="findPlayerButton()" style="color:white; font-family:Monospace" class="btn">Find a match!</button> 
-</div> <br> <br>
+  <button id="button1" onclick="findPlayerButton()" style="color:white; font-family:Monospace" class="btn">Find a match!</button> 
+</div> 
+<button id="button2" onclick="playAgainstAI()" style="color:white; font-family:Monospace" class="btn">Or play against a bot!</button> 
+<br> <br>
 
 <div id="myNav" class="overlay">
   <div class="overlay-content">
@@ -129,6 +131,7 @@
 
 //The below is just some variables being declared for the following code
       let player
+      let AImode = 0
       let oldMove
       let clientSession
       let newInterval
@@ -291,12 +294,15 @@
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
           activeStatus = 0;
+          AImode = 0
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
           gameStart = 0;
           oldMove = undefined;
           timeDetail = 1
           stopIntervals()
+          document.getElementById("button1").innerHTML = "Find a match!"
+          document.getElementById("button2").innerHTML = "Or play against a bot!"
         }
 
         function stopIntervals() { //This function just stops any background timers/intervals/checks
@@ -309,20 +315,7 @@
           clearInterval(checkIntervalMoveTimerOpponent)
         }
 
-        function startTheGame() { //This is a precaution to allow player connections 2501ms to complete before starting the game
-        clearInterval(checkIntervalGameStart);
-        checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
-        
-        function retrieveUpdateConnection() { //Waits 2501 ms to allow connections
-          gameStart = 1
-          styleToggle()
-          setStatusMsg("Player found, begin!", "green")
-          clearInterval(checkIntervalGameStart)
-        }
-      }
-
-      function findPlayerButton() { //This is the primary function the user selects that starts the match making search
-          
+        function removeStyles() { //This function resets the 3x3 noughts and crosses canvas, removing any noughts or crosses
           let lineArraySecond = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArraySecond.forEach(newStyleFuncSecond)
           function newStyleFuncSecond (lineValueSecond) {
@@ -340,7 +333,26 @@
           function newStyleFuncRect (rectValue) {
             document.getElementById(rectValue).style.removeProperty('opacity');
           }
+        }
 
+        function startTheGame() { //This is a precaution to allow player connections 2501ms to complete before starting the game
+        clearInterval(checkIntervalGameStart);
+        checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
+        
+        function retrieveUpdateConnection() { //Waits 2501 ms to allow connections
+          gameStart = 1
+          styleToggle()
+          setStatusMsg("Player found, begin!", "green")
+          clearInterval(checkIntervalGameStart)
+        }
+      }
+
+      function findPlayerButton() { //This is the primary function the user selects that starts the match making search
+        if (AImode == 1) {
+          startAIMatch()
+        }
+        else {
+          removeStyles()
           resetGameVariables()
           let objectWSFindPlayer = ({type: "waiting"})
           socket.send(JSON.stringify(objectWSFindPlayer));
@@ -389,6 +401,7 @@
           }
           };
           socket.addEventListener('message', handleMessage);
+        }
         } 
 
         function place(location) { //This function is activated every time the local player does a move, it sends the move to the tictactoe server and sets it locally aswell
@@ -517,6 +530,25 @@
           moveTimerFriendly()
         }
       }
+      }
+
+      function playAgainstAI() {
+        if (AImode == 1) {
+          resetGameVariables()
+          setStatusMsg("Press 'Find a match!' to begin searching for a match", "red")
+        }
+        else {
+          resetGameVariables()
+          removeStyles()
+          AImode = 1
+          setStatusMsg("Press 'Start' to begin a match against a bot!", "red")
+          document.getElementById("button1").innerHTML = "Start"
+          document.getElementById("button2").innerHTML = "Or play multiplayer mode!"
+        }
+      }
+
+      function startAIMatch() {
+        
       }
 
     </script>
