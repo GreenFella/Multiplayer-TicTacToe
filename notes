@@ -25,7 +25,13 @@ harder to fix than expected, might have to fix the draw function itself
 (FIXED)
 
 -TO ADD - no time limit on turn (easy) (DONE)
+
 -TO ADD - custom player name (easy)
+
 -TO ADD - way to play again against the same opponent as before (easy)
+
 -TO ADD - a way to make a custom game, to play against a friend (medium)
+
 -TO ADD - a way to play against AI (hard)
+if opponent has 2 places in a row
+and if there is a spare space on either side of the 2 spaces, place one there

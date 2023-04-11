@@ -294,7 +294,6 @@
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           myTurn = 1;
           activeStatus = 0;
-          AImode = 0
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
           gameStart = 0;
@@ -405,6 +404,7 @@
         } 
 
         function place(location) { //This function is activated every time the local player does a move, it sends the move to the tictactoe server and sets it locally aswell
+         if (AImode == 0) {
           if (gameStart == 1) {
           let locationNumber = location.charAt(location.length-1)
           let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
@@ -438,7 +438,11 @@
           socket.send(JSON.stringify(objectWSLocation));
           }
         }
-        }
+      }
+      else {
+        placeAISelf(location)
+      }
+    }
 
       function checkForDisconnect() { //This function checks if the opponent has disconnected, it ends the game if the opponent has been unresponsive for over 5000ms
         clearInterval(checkInterval);
@@ -532,9 +536,11 @@
       }
       }
 
-      function playAgainstAI() {
+      function playAgainstAI() { //This function changes game settings depending on the users decision to play against a bot or multiplayer
         if (AImode == 1) {
           resetGameVariables()
+          AImode = 0
+          removeStyles()
           setStatusMsg("Press 'Find a match!' to begin searching for a match", "red")
         }
         else {
@@ -547,8 +553,64 @@
         }
       }
 
-      function startAIMatch() {
-        
+      function startAIMatch() { //Sets configuration for an AI match
+        removeStyles()
+        resetGameVariables()
+        document.getElementById("button1").innerHTML = "Restart game"
+        document.getElementById("button2").innerHTML = "Or play multiplayer mode!"
+        gameStart = 1
+        player = 1
+        setStatusMsg("Game on!", "green")
+        styleToggle()
+        firstMoveDecider()
+      }
+
+      function firstMoveDecider() { //Decides if the player or the AI gets the first move
+        if (Math.random() < 0.5) {
+          myTurn = 1
+        } else {
+          myTurn = 0
+          AIMove()
+        }
+      }
+
+      function placeAISelf(locationPlaced) { //This function is triggered when the player makes a move
+        if (gameStart == 1) {
+          let locationNumber = locationPlaced.charAt(locationPlaced.length-1)
+          let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
+          let checkFriendlyMovesArray = movesArrayFriendly.find(item => item == locationNumber)
+          if (checkMovesArray == undefined && checkFriendlyMovesArray == undefined && myTurn == 1) {
+            let elementValueLine = "line" + locationNumber;
+            let elementValueLineSecond = "line" + locationNumber + "1";
+            let elementStyleRectLine = "rect" + locationNumber;
+            document.getElementById(elementValueLine).style.stroke = "white";
+            document.getElementById(elementValueLineSecond).style.stroke = "white";
+            document.getElementById(elementStyleRectLine).style.opacity = "0";
+            movesArrayFriendly.splice(locationNumber, 1, locationNumber)
+            myTurn = 0;
+            AIMove()
+          }
+        }
+      }
+
+      function AIMove() { //This function computes which move the AI should make next
+        let checkPlayerMovesArray = movesArrayFriendly.find(item => item !== 0)
+        if (checkPlayerMovesArray == undefined) {
+          let firstMove = Math.floor(Math.random() * (9)) + 1;
+          let elementValueCirc = "circ" + firstMove;
+          let elementStyleRectCirc = "rect" + firstMove;
+          let elementValueCircLine = "line" + firstMove;
+          let elementValueCircLineSecond = "line" + firstMove + "1";
+          document.getElementById(elementValueCirc).style.stroke = "white";
+          document.getElementById(elementStyleRectCirc).style.opacity = "0";
+          document.getElementById(elementValueCircLine).style.stroke = "none";
+          document.getElementById(elementValueCircLineSecond).style.stroke = "none";
+          movesArrayOpponent.splice(firstMove, 1, firstMove) 
+          myTurn = 1
+        }
+        else {
+
+        }
       }
 
     </script>
