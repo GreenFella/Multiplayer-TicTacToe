@@ -56,8 +56,10 @@
 <h1 style="color:white; font-family:silkscreen">TicTacToe</h1>
 <h5 style="color:red; font-family:Monospace" id="matchStatus">Press 'Find a match!' to begin searching for a match</h5>
 <div class="container" style="height: 50px; width: 174px">
-  <button onclick="findPlayerButton()" style="color:white; font-family:Monospace" class="btn">Find a match!</button> 
-</div> <br> <br>
+  <button id="button1" onclick="findPlayerButton()" style="color:white; font-family:Monospace" class="btn">Find a match!</button> 
+</div> 
+<button id="button2" onclick="playAgainstAI()" style="color:white; font-family:Monospace" class="btn">Or play against a bot!</button> 
+<br> <br>
 
 <div id="myNav" class="overlay">
   <div class="overlay-content">
@@ -127,7 +129,9 @@
 
     <script>
 
+//The below is just some variables being declared for the following code
       let player
+      let AImode = 0
       let oldMove
       let clientSession
       let newInterval
@@ -135,32 +139,53 @@
       let checkInterval
       let checkIntervalSecond
       let checkIntervalGameStart
+      let checkIntervalMoveTimer
+      let checkIntervalMoveTimerOpponent
       let opponentMove
+      let avaialableSpacesAI = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      let avaialableSpacesAITester = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayFriendlyAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayOpponentAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let arrayCheckMoveAI2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let arrayCheckMoveFriendly2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let myTurn
       let activeStatus
       let opponentActiveStatus = 0;
       let connectionCheckerStatus
       let gameStart = 0
+      let timeDetail = 1
+      let scoreAIMatch = 0
 
-      function setStatusMsg(statusMsg, colour) {
+      function setStatusMsg(statusMsg, colour) { //This function changes the in game visible status message
         document.getElementById("matchStatus").innerHTML = statusMsg
         document.getElementById("matchStatus").style.color = colour;
       }
 
-      function setEndScreen(statusMsg, colour) {
+      function setStatusMsgTimer(statusMsg, colour) { //This function changes the in game visible status message, same as above but compatible with timer
+        document.getElementById("matchStatus").innerHTML = statusMsg + " seconds remaining on your turn"
+        document.getElementById("matchStatus").style.color = colour;
+      }
+
+      function setStatusMsgTimerOpponent(statusMsg, colour) { //This function changes the in game visible status message, same as above but compatible with timer
+        document.getElementById("matchStatus").innerHTML = statusMsg + " seconds remaining on opponents turn"
+        document.getElementById("matchStatus").style.color = colour;
+      }
+
+      function setEndScreen(statusMsg, colour) { //This function opens the end screen overaly and cancels any active code
         document.getElementById("endScreen").innerHTML = statusMsg;
         document.getElementById("endScreen").style.color = colour;
         document.getElementById("myNav").style.height = "100%";
+        stopIntervals()
       }
 
-      function closeNav() {
+      function closeNav() { //This function closes the end screen overaly
         document.getElementById("myNav").style.height = "0%";
       }
 
-      function styleToggle() {
+      function styleToggle() { //This function enables the visible noughts or crosses, depending on which player you are
         if (player == 1) {
           let lineArray = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArray.forEach(newStyleFunc)
@@ -177,6 +202,44 @@
         }
       }
 
+      function moveTimerFriendly() { //This function sets a 30 second timer on each of the local players move, the game ends if a player exceeds the time limit
+        clearInterval(checkIntervalMoveTimer);
+        checkIntervalMoveTimer = setInterval(startMoveTimer, 1000)
+        timeDetail = 30
+        setStatusMsgTimer(timeDetail, "green")
+        
+        function startMoveTimer() {
+          timeDetail -= 1;
+          setStatusMsgTimer(timeDetail, "green")
+          if (timeDetail == 0) {
+            setEndScreen("YOU LOOSE! you ran out of time", "red")
+        }
+        }
+      }
+
+      function stopFriendlyTimer() { //This function stops the turn timer after you do your move
+        clearInterval(checkIntervalMoveTimer)
+      }
+
+      function moveTimerOpponent() { //This function sets a 30 second timer on each of the opponents move, the game ends if a player exceeds the time limit
+        clearInterval(checkIntervalMoveTimerOpponent);
+        checkIntervalMoveTimerOpponent = setInterval(startMoveTimerOpponent, 1000)
+        timeDetail = 30
+        setStatusMsgTimerOpponent(timeDetail, "red")
+        
+        function startMoveTimerOpponent() {
+          timeDetail -= 1;
+          setStatusMsgTimerOpponent(timeDetail, "red")
+          if (timeDetail == 0) {
+            setEndScreen("YOU WIN! your opponent ran out of time", "green")
+        }
+        }
+      }
+
+      function stopOpponentTimer() { //This function stops the opponents turn timer after they do their move
+        clearInterval(checkIntervalMoveTimerOpponent)
+      }
+
       function draw() { //This function checks if the game is a draw after each move
 	      combinedArr = movesArrayOpponent.map((val, index) => {
 		      if (val === 0) {
@@ -190,8 +253,6 @@
 	      if (arrayMovesCheckerDraw == undefined) {
           setEndScreen("ITS A DRAW!", "yellow")
           gameStart = 0
-          clearInterval(readyInterval)
-          clearInterval(checkInterval)
 	      }
       }
       
@@ -208,10 +269,7 @@
           let arrayMovesCheckerThird = movesArrayFriendly.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU WIN!", "green")
-            console.log("NUMERO 1")
             gameStart = 0
-            clearInterval(readyInterval)
-            clearInterval(checkInterval)
           }
           else {
             winningCombinations.forEach(checkForWinnerOpponent)
@@ -225,53 +283,52 @@
             let arrayMovesCheckerThird = movesArrayOpponent.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
             setEndScreen("YOU LOOSE!", "red")
-            console.log("NUMERO 2")
             gameStart = 0
-            clearInterval(readyInterval)
-            clearInterval(checkInterval)
           }
-          else {
+          else if (gameStart == 1) {
             draw()
-            console.log("NUMEROOOOOOOOO 3")
               }
             }
           }
         }
       }
 
-      const socket = new WebSocket("ws://localhost:8081");
+      const socket = new WebSocket("ws://localhost:8081"); //Connects to the websocket server running the tictactoe server
 
-      function resetGameVariables() {
+      function resetGameVariables() { //This function resets all game variables for when a game is done
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          movesArrayFriendlyAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          movesArrayOpponentAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          avaialableSpacesAI = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          avaialableSpacesAITester = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          arrayCheckMoveAI2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          arrayCheckMoveFriendly2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
           myTurn = 1;
+          scoreAIMatch = 0
           activeStatus = 0;
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
           gameStart = 0;
           oldMove = undefined;
+          timeDetail = 1
+          stopIntervals()
+          document.getElementById("button1").innerHTML = "Find a match!"
+          document.getElementById("button2").innerHTML = "Or play against a bot!"
+        }
+
+        function stopIntervals() { //This function just stops any background timers/intervals/checks
           clearInterval(newInterval)
           clearInterval(readyInterval)
           clearInterval(checkInterval)
           clearInterval(checkIntervalSecond)
           clearInterval(checkIntervalGameStart)
+          clearInterval(checkIntervalMoveTimer)
+          clearInterval(checkIntervalMoveTimerOpponent)
         }
 
-        function startTheGame() {
-        clearInterval(checkIntervalGameStart);
-        checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
-        
-        function retrieveUpdateConnection() { //Waits 2501 ms to allow connections
-          gameStart = 1
-          styleToggle()
-          setStatusMsg("Player found, begin!", "green")
-          clearInterval(checkIntervalGameStart)
-        }
-      }
-
-      function findPlayerButton() {
-          
+        function removeStyles() { //This function resets the 3x3 noughts and crosses canvas, removing any noughts or crosses
           let lineArraySecond = ["line1", "line11", "line2", "line21", "line3", "line31", "line4", "line41", "line5", "line51", "line6", "line61", "line7", "line71", "line8", "line81", "line9", "line91"]
           lineArraySecond.forEach(newStyleFuncSecond)
           function newStyleFuncSecond (lineValueSecond) {
@@ -289,7 +346,26 @@
           function newStyleFuncRect (rectValue) {
             document.getElementById(rectValue).style.removeProperty('opacity');
           }
+        }
 
+        function startTheGame() { //This is a precaution to allow player connections 2501ms to complete before starting the game
+        clearInterval(checkIntervalGameStart);
+        checkIntervalGameStart = setInterval(retrieveUpdateConnection, 2501)
+        
+        function retrieveUpdateConnection() { //Waits 2501 ms to allow connections
+          gameStart = 1
+          styleToggle()
+          setStatusMsg("Player found, begin!", "green")
+          clearInterval(checkIntervalGameStart)
+        }
+      }
+
+      function findPlayerButton() { //This is the primary function the user selects that starts the match making search
+        if (AImode == 1) {
+          startAIMatch()
+        }
+        else {
+          removeStyles()
           resetGameVariables()
           let objectWSFindPlayer = ({type: "waiting"})
           socket.send(JSON.stringify(objectWSFindPlayer));
@@ -338,9 +414,11 @@
           }
           };
           socket.addEventListener('message', handleMessage);
+        }
         } 
 
-        function place(location) {
+        function place(location) { //This function is activated every time the local player does a move, it sends the move to the tictactoe server and sets it locally aswell
+         if (AImode == 0) {
           if (gameStart == 1) {
           let locationNumber = location.charAt(location.length-1)
           let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
@@ -356,8 +434,8 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            //draw()
-            setStatusMsg("Opponents turn", "red")
+            stopFriendlyTimer()
+            moveTimerOpponent()
           }
           if (player == 2) {
             let elementValueCirc = "circ" + locationNumber;
@@ -367,23 +445,26 @@
             movesArrayFriendly.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             winner()
-            //draw()
-            setStatusMsg("Opponents turn", "red")
+            stopFriendlyTimer()
+            moveTimerOpponent()
           }
           let objectWSLocation = ({type: "updateLocation", sessionId: clientSession, player: player, locationNumber: locationNumber})
           socket.send(JSON.stringify(objectWSLocation));
           }
         }
-        }
+      }
+      else {
+        placeAISelf(location)
+      }
+    }
 
-      function checkForDisconnect() {
+      function checkForDisconnect() { //This function checks if the opponent has disconnected, it ends the game if the opponent has been unresponsive for over 5000ms
         clearInterval(checkInterval);
         checkInterval = setInterval(retrieveUpdateConnection, 5000)
         
         function retrieveUpdateConnection() { //Checks player connection status every 5000 miliseconds
           if (opponentActiveStatus == connectionCheckerStatus) {
             setEndScreen("OPPONENT HAS DISCONNECTED!", "red")
-            clearInterval(checkInterval)
           }
           else {
           connectionCheckerStatus = opponentActiveStatus
@@ -391,7 +472,7 @@
         }
       }
 
-      function ready() {
+      function ready() { //This function sends the tictactoe server an update every 100ms asking for the opponents connection status, it also sends the local connection status which gets passed on to the opponent to confirm both users are still online
         clearInterval(readyInterval);
         readyInterval = setInterval(retrieveUpdate, 100)
 
@@ -399,22 +480,20 @@
           let objectWSGetUpdate = ({type: "getUpdate", sessionId: clientSession, player: player, activeStatusMsg: activeStatus})
           socket.send(JSON.stringify(objectWSGetUpdate));
           activeStatus++
-          function handleMessage(message) {
+          function handleMessageInfo(message) {
             let messageToJson = JSON.parse(message.data)
-            updateOpponentMove(messageToJson.locationNumberUpdate)
+            if (messageToJson.locationNumberUpdate !== oldMove) {
+              socket.removeEventListener('message', handleMessageInfo);
+              updateOpponentMove(messageToJson.locationNumberUpdate)
+            }
             opponentActiveStatus = messageToJson.activeStatusOpp;
-          socket.removeEventListener('message', handleMessage);
+            socket.removeEventListener('message', handleMessageInfo);
         }
-        socket.addEventListener('message', handleMessage);
-          socket.addEventListener('message', function (message) {
-            let messageToJson = JSON.parse(message.data)
-            updateOpponentMove(messageToJson.locationNumberUpdate)
-            opponentActiveStatus = messageToJson.activeStatusOpp;
-          })
+        socket.addEventListener('message', handleMessageInfo);
         }
       }
 
-      function checkForOpponent() {
+      function checkForOpponent() { //This function only activates if you are player 2, it prevents loading into a game where there is no player 1 and will just automatically join a new game session if there is no player 1
         player = 2;
         ready()
         clearInterval(checkIntervalSecond);
@@ -435,8 +514,8 @@
         }
       }
 
-      function updateOpponentMove(opMove) {
-        if (opMove !== "NA" && opMove !== oldMove && gameStart == 1) {
+      function updateOpponentMove(opMove) { //This function gets called from the ready() function with data about whether the opponent has done a new move yet, if a new move is done it places the move locally to be visible on screen
+        if (opMove !== "NA" && gameStart == 1) {
           oldMove = opMove
         if (player == 1) {
           let elementValueCirc = "circ" + opMove;
@@ -450,8 +529,8 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          //draw()
-          setStatusMsg("Your turn!", "green")
+          stopOpponentTimer()
+          moveTimerFriendly()
         }
         else if (player == 2) {
           let elementValueLine = "line" + opMove;
@@ -465,10 +544,170 @@
           movesArrayOpponent.splice(opMove, 1, opMove)
           myTurn = 1;
           winner()
-          //draw()
-          setStatusMsg("Your turn!", "green")
+          stopOpponentTimer()
+          moveTimerFriendly()
         }
       }
+      }
+
+      function playAgainstAI() { //This function changes game settings depending on the users decision to play against a bot or multiplayer
+        if (AImode == 1) {
+          resetGameVariables()
+          AImode = 0
+          removeStyles()
+          setStatusMsg("Press 'Find a match!' to begin searching for a match", "red")
+        }
+        else {
+          resetGameVariables()
+          removeStyles()
+          AImode = 1
+          setStatusMsg("Press 'Start' to begin a match against a bot!", "red")
+          document.getElementById("button1").innerHTML = "Start"
+          document.getElementById("button2").innerHTML = "Or play multiplayer mode!"
+        }
+      }
+
+      function startAIMatch() { //Sets configuration for an AI match
+        removeStyles()
+        resetGameVariables()
+        document.getElementById("button1").innerHTML = "Restart game"
+        document.getElementById("button2").innerHTML = "Or play multiplayer mode!"
+        gameStart = 1
+        player = 1
+        setStatusMsg("Game on!", "green")
+        styleToggle()
+        firstMoveDecider()
+      }
+
+      function firstMoveDecider() { //Decides if the player or the AI gets the first move
+        if (Math.random() < 0.5) {
+          myTurn = 1
+        } else {
+          myTurn = 0
+          AIMove()
+        }
+      }
+
+      function placeAISelf(locationPlaced) { //This function is triggered when the player makes a move
+        if (gameStart == 1) {
+          let locationNumber = locationPlaced.charAt(locationPlaced.length-1)
+          let checkMovesArray = movesArrayOpponentAIMatch.find(item => item == locationNumber)
+          let checkFriendlyMovesArray = movesArrayFriendlyAIMatch.find(item => item == locationNumber)
+          if (checkMovesArray == undefined && checkFriendlyMovesArray == undefined && myTurn == 1) {
+            let elementValueLine = "line" + locationNumber;
+            let elementValueLineSecond = "line" + locationNumber + "1";
+            let elementStyleRectLine = "rect" + locationNumber;
+            document.getElementById(elementValueLine).style.stroke = "white";
+            document.getElementById(elementValueLineSecond).style.stroke = "white";
+            document.getElementById(elementStyleRectLine).style.opacity = "0";
+            movesArrayFriendlyAIMatch.splice(locationNumber, 1, locationNumber)
+            myTurn = 0;
+            AIMove()
+          }
+        }
+      }
+
+      function AIMove() { //This function computes which move the AI should make next
+        let checkPlayerMovesArray = movesArrayFriendlyAIMatch.find(item => item !== 0 && item !== "filler")
+        if (checkPlayerMovesArray == undefined) {
+          let firstMove = Math.floor(Math.random() * (9)) + 1;
+          let elementValueCirc = "circ" + firstMove;
+          let elementStyleRectCirc = "rect" + firstMove;
+          let elementValueCircLine = "line" + firstMove;
+          let elementValueCircLineSecond = "line" + firstMove + "1";
+          document.getElementById(elementValueCirc).style.stroke = "white";
+          document.getElementById(elementStyleRectCirc).style.opacity = "0";
+          document.getElementById(elementValueCircLine).style.stroke = "none";
+          document.getElementById(elementValueCircLineSecond).style.stroke = "none";
+          movesArrayOpponentAIMatch.splice(firstMove, 1, firstMove) 
+          myTurn = 1
+        }
+        else { //In the array avaialableSpacesAI, 2 is the player, 3 is the AI, 1 is an available space
+          movesArrayFriendlyAIMatch.forEach(AICheckMove1)
+          function AICheckMove1(lineValue, index) {
+            if (lineValue !== 0 && lineValue !== "filler") {
+              avaialableSpacesAI.splice(index, 1, 2)
+            }
+          }
+          movesArrayOpponentAIMatch.forEach(AICheckMove2)
+          function AICheckMove2(lineValue, index) {
+            if (lineValue !== 0 && lineValue !== "filler") {
+              avaialableSpacesAI.splice(index, 1, 3)
+            }
+          }
+          avaialableSpacesAI.forEach(AICheckMove3)
+          function AICheckMove3(lineValue, index) {
+            if (lineValue == 1) {
+              avaialableSpacesAITester = avaialableSpacesAI
+              arrayCheckMoveAI2 = movesArrayOpponentAIMatch
+              arrayCheckMoveFriendly2 = movesArrayFriendlyAIMatch
+              bestMove = minmax(index)
+              console.log(bestMove)
+            }
+          }
+        }
+      }
+
+      function minmax(determine) { //A personal attempt at minimax
+
+        arrayCheckMoveAI2.splice(determine, 1, determine)
+
+        arrayCheckMoveFriendly2.splice(determine, 1, determine)
+
+        let winCheck1 = checkingWinner(arrayCheckMoveAI2)
+        if (winCheck1 == 1) {
+          return scoreAIMatch + 2
+        }
+        else if (winCheck1 !== 1) {
+        let winCheck2 = checkingWinner(arrayCheckMoveFriendly2)
+        if (winCheck2 == 1) {
+          return scoreAIMatch + 1
+        }
+        }
+        else { //This is the AI move checker
+          avaialableSpacesAITester.splice(determine, 1, determine)
+          avaialableSpacesAITester.forEach(AICheckMove3)
+          
+        }
+      return scoreAIMatch
+      }
+          
+      function checkingWinner(checkerNum) {
+            let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
+            winningCombinations.forEach(checkForWinnerFriendly)
+            function checkForWinnerFriendly (winnerValue) {
+              let stringIt = JSON.stringify(winnerValue)
+              let first = stringIt.charAt(stringIt.length-3)
+              let second = stringIt.charAt(stringIt.length-2)
+              let third = stringIt.charAt(stringIt.length-1)
+              let arrayMovesCheckerFirst = checkerNum.find(item => item == first)
+              let arrayMovesCheckerSecond = checkerNum.find(item => item == second)
+              let arrayMovesCheckerThird = checkerNum.find(item => item == third)
+              if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+                return 1
+              }
+              else {
+                return 0
+              }
+            }
+          }
+
+      function winnerAIMatch() { //This function checks if the game has a winner after each move
+        let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
+        winningCombinations.forEach(checkForWinnerFriendly)
+        function checkForWinnerFriendly (winnerValue) {
+          let stringIt = JSON.stringify(winnerValue)
+          let first = stringIt.charAt(stringIt.length-3)
+          let second = stringIt.charAt(stringIt.length-2)
+          let third = stringIt.charAt(stringIt.length-1)
+          let arrayMovesCheckerFirst = movesArrayFriendlyAIMatch.find(item => item == first)
+          let arrayMovesCheckerSecond = movesArrayFriendlyAIMatch.find(item => item == second)
+          let arrayMovesCheckerThird = movesArrayFriendlyAIMatch.find(item => item == third)
+          if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+            setEndScreen("YOU WIN!", "green")
+            gameStart = 0
+          }
+        }
       }
 
     </script>

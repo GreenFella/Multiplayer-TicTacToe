@@ -1,0 +1,11 @@
+score + 2 is a winner spot placement
+
+
+avaialableSpacesAITester = [0, 1, 2, 1, 2, 2, 1, 1, 1, 1]
+
+
+
+after it adds the current spot being checked, it loops through the avaialableSpacesAITester and if it sees an available space (1) it runs the minimax function again,
+passing the new empty space through and it uses the previous avaialableSpacesAITester array which had the previous free space added to it
+
+so after 

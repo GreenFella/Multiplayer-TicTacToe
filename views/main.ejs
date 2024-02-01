@@ -142,15 +142,34 @@
       let checkIntervalMoveTimer
       let checkIntervalMoveTimerOpponent
       let opponentMove
+      let avaialableSpacesAI = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      let avaialableSpacesAITester = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      let avaialableSpacesAITester2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayFriendlyAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let movesArrayOpponentAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let arrayCheckMoveAI2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      let arrayCheckMoveFriendly2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
       let myTurn
       let activeStatus
       let opponentActiveStatus = 0;
       let connectionCheckerStatus
       let gameStart = 0
       let timeDetail = 1
+      let scoreAIMatch = {
+                          0: 0,
+                          1: 0,
+                          2: 0,
+                          3: 0,
+                          4: 0,
+                          5: 0,
+                          6: 0,
+                          7: 0,
+                          8: 0,
+                          9: 0
+                        }
 
       function setStatusMsg(statusMsg, colour) { //This function changes the in game visible status message
         document.getElementById("matchStatus").innerHTML = statusMsg
@@ -292,7 +311,25 @@
           movesArrayOpponent = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           movesArrayFriendly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
           combinedArr = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          movesArrayFriendlyAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          movesArrayOpponentAIMatch = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          avaialableSpacesAI = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          avaialableSpacesAITester = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          arrayCheckMoveAI2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          arrayCheckMoveFriendly2 = ["filler", 0, 0, 0, 0, 0, 0, 0, 0, 0]
           myTurn = 1;
+          scoreAIMatch = {
+                          0: 0,
+                          1: 0,
+                          2: 0,
+                          3: 0,
+                          4: 0,
+                          5: 0,
+                          6: 0,
+                          7: 0,
+                          8: 0,
+                          9: 0
+                        };
           activeStatus = 0;
           opponentActiveStatus = 0;
           connectionCheckerStatus = 0;
@@ -577,8 +614,8 @@
       function placeAISelf(locationPlaced) { //This function is triggered when the player makes a move
         if (gameStart == 1) {
           let locationNumber = locationPlaced.charAt(locationPlaced.length-1)
-          let checkMovesArray = movesArrayOpponent.find(item => item == locationNumber)
-          let checkFriendlyMovesArray = movesArrayFriendly.find(item => item == locationNumber)
+          let checkMovesArray = movesArrayOpponentAIMatch.find(item => item == locationNumber)
+          let checkFriendlyMovesArray = movesArrayFriendlyAIMatch.find(item => item == locationNumber)
           if (checkMovesArray == undefined && checkFriendlyMovesArray == undefined && myTurn == 1) {
             let elementValueLine = "line" + locationNumber;
             let elementValueLineSecond = "line" + locationNumber + "1";
@@ -586,15 +623,46 @@
             document.getElementById(elementValueLine).style.stroke = "white";
             document.getElementById(elementValueLineSecond).style.stroke = "white";
             document.getElementById(elementStyleRectLine).style.opacity = "0";
-            movesArrayFriendly.splice(locationNumber, 1, locationNumber)
+            movesArrayFriendlyAIMatch.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
             AIMove()
           }
         }
       }
 
+      function findKeyByValue(obj, primaryValue, secondaryValue) {
+          // First, try to find a key with the primary value (2)
+          let primaryEntry = Object.entries(obj).find(([key, value]) => value === primaryValue);
+          if (primaryEntry) {
+              return primaryEntry[0]; // Return the key if found
+          }
+
+          // If no primary value found, look for a key with the secondary value (1)
+          let secondaryEntry = Object.entries(obj).find(([key, value]) => value === secondaryValue);
+          if (secondaryEntry) {
+              return secondaryEntry[0]; // Return the key if found
+          }
+
+          return null; // Return null if no key with the desired values is found
+      }
+
+      function updateGameBoard(move) {
+          let elementValueCirc = "circ" + move;
+          let elementStyleRectCirc = "rect" + move;
+          let elementValueCircLine = "line" + move;
+          let elementValueCircLineSecond = "line" + move + "1";
+
+          document.getElementById(elementValueCirc).style.stroke = "white";
+          document.getElementById(elementStyleRectCirc).style.opacity = "0";
+          document.getElementById(elementValueCircLine).style.stroke = "none";
+          document.getElementById(elementValueCircLineSecond).style.stroke = "none";
+
+          movesArrayOpponentAIMatch.splice(move, 1, move);
+          myTurn = 1;
+      }
+
       function AIMove() { //This function computes which move the AI should make next
-        let checkPlayerMovesArray = movesArrayFriendly.find(item => item !== 0)
+        let checkPlayerMovesArray = movesArrayFriendlyAIMatch.find(item => item !== 0 && item !== "filler")
         if (checkPlayerMovesArray == undefined) {
           let firstMove = Math.floor(Math.random() * (9)) + 1;
           let elementValueCirc = "circ" + firstMove;
@@ -605,13 +673,165 @@
           document.getElementById(elementStyleRectCirc).style.opacity = "0";
           document.getElementById(elementValueCircLine).style.stroke = "none";
           document.getElementById(elementValueCircLineSecond).style.stroke = "none";
-          movesArrayOpponent.splice(firstMove, 1, firstMove) 
+          movesArrayOpponentAIMatch.splice(firstMove, 1, firstMove) 
           myTurn = 1
         }
-        else {
+        else { //In the array avaialableSpacesAI, 2 is the player, 3 is the AI, 1 is an available space
+          movesArrayFriendlyAIMatch.forEach(AICheckMove1)
+          function AICheckMove1(lineValue, index) {
+            if (lineValue !== 0 && lineValue !== "filler") {
+              avaialableSpacesAI.splice(index, 1, 2)
+            }
+          }
+          movesArrayOpponentAIMatch.forEach(AICheckMove2)
+          function AICheckMove2(lineValue, index) {
+            if (lineValue !== 0 && lineValue !== "filler") {
+              avaialableSpacesAI.splice(index, 1, 3)
+            }
+          }
+          avaialableSpacesAITester = avaialableSpacesAI.slice();
+          arrayCheckMoveAI2 = movesArrayOpponentAIMatch.slice();
+          arrayCheckMoveFriendly2 = movesArrayFriendlyAIMatch.slice();
 
+          avaialableSpacesAITester.forEach(AICheckMove3)
+
+          function AICheckMove3(lineValue, index) {
+            if (lineValue == 1) {
+              minmaxInitial(index);
+            }
+          }
+          let whereToPlace = findKeyByValue(scoreAIMatch, 2, 1)
+          let move;
+          if (whereToPlace != null) {
+              move = parseInt(whereToPlace);
+          } else {
+              let score = minimax(avaialableSpacesAITester, 9, true);
+              move = score.move;
+          }
+
+          if (move !== undefined) {
+              updateGameBoard(move);
+          }
         }
       }
+
+      function minimax(board, depth, isMaximizingPlayer) {
+          let winner = checkingWinner2(board);
+          if (winner == 1 || winner == -1 || depth == 0) {
+            return { score: winner };
+          }
+
+          if (isMaximizingPlayer) {
+              let bestScore = -Infinity;
+              let bestMove;
+              board.forEach((item, index) => {
+                  if (item == 1) { // If the space is available
+                      board[index] = 3; // AI makes a move
+                      let result = minimax(board, depth - 1, false);
+                      board[index] = 1; // Undo the move
+
+                      if (result.score > bestScore) {
+                          bestScore = result.score;
+                          bestMove = index;
+                      }
+                  }
+              });
+              return { score: bestScore, move: bestMove };
+          } else {
+              let bestScore = Infinity;
+              let bestMove;
+              board.forEach((item, index) => {
+                  if (item == 1) { // If the space is available
+                      board[index] = 2; // Player makes a move
+                      let result = minimax(board, depth - 1, true);
+                      board[index] = 1; // Undo the move
+
+                      if (result.score < bestScore) {
+                          bestScore = result.score;
+                          bestMove = index;
+                      }
+                  }
+              });
+              return { score: bestScore, move: bestMove };
+          }
+      }
+
+
+      function checkingWinner2(board) {
+          let winningCombinations = [
+              [1, 2, 3], [4, 5, 6], [7, 8, 9],
+              [1, 4, 7], [2, 5, 8], [3, 6, 9],
+              [1, 5, 9], [3, 5, 7]
+          ];
+          
+          for (let combo of winningCombinations) {
+              if (board[combo[0]] === 3 && board[combo[1]] === 3 && board[combo[2]] === 3) {
+                  return 1; // AI wins
+              } else if (board[combo[0]] === 2 && board[combo[1]] === 2 && board[combo[2]] === 2) {
+                  return -1; // Player wins
+              }
+          }
+          return 0; // No winner yet
+      }
+
+      function minmaxInitial(determine) { //Checks if there is a game win or game loss spot before performing the main minimax function
+        //The value of determine is an available space where the ai can potentially put there piece
+        let checkArrayAICopy = arrayCheckMoveAI2.slice();
+        checkArrayAICopy.splice(determine, 1, determine);
+        let checkArrayPlayerCopy = arrayCheckMoveFriendly2.slice();
+        checkArrayPlayerCopy.splice(determine, 1, determine);
+
+        let winCheckAI = checkingWinner(checkArrayAICopy)
+        let winCheckPlayer = checkingWinner(checkArrayPlayerCopy)
+        if (winCheckAI == 1) {
+          scoreAIMatch[determine] = 2;
+          return
+        }
+        else if (winCheckPlayer == 1) {
+          scoreAIMatch[determine] = 1;
+          return
+        }
+      }
+
+      function checkingWinner(checkerNum) {
+          let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357];
+          
+          for (let winnerValue of winningCombinations) {
+              let stringIt = JSON.stringify(winnerValue);
+              let first = stringIt.charAt(stringIt.length - 3);
+              let second = stringIt.charAt(stringIt.length - 2);
+              let third = stringIt.charAt(stringIt.length - 1);
+
+              let arrayMovesCheckerFirst = checkerNum.find(item => item == first);
+              let arrayMovesCheckerSecond = checkerNum.find(item => item == second);
+              let arrayMovesCheckerThird = checkerNum.find(item => item == third);
+
+              if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+                  return 1;
+              }
+          }
+          return 0;
+      }
+
+      function winnerAIMatch() { //This function checks if the game has a winner after each move
+        let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
+        winningCombinations.forEach(checkForWinnerFriendly)
+        function checkForWinnerFriendly (winnerValue) {
+          let stringIt = JSON.stringify(winnerValue)
+          let first = stringIt.charAt(stringIt.length-3)
+          let second = stringIt.charAt(stringIt.length-2)
+          let third = stringIt.charAt(stringIt.length-1)
+          let arrayMovesCheckerFirst = movesArrayFriendlyAIMatch.find(item => item == first)
+          let arrayMovesCheckerSecond = movesArrayFriendlyAIMatch.find(item => item == second)
+          let arrayMovesCheckerThird = movesArrayFriendlyAIMatch.find(item => item == third)
+          if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+            setEndScreen("YOU WIN!", "green")
+            gameStart = 0
+          }
+        }
+      }
+
+      playAgainstAI()
 
     </script>
   
