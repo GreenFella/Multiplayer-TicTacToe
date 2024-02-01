@@ -659,6 +659,18 @@
 
           movesArrayOpponentAIMatch.splice(move, 1, move);
           myTurn = 1;
+          scoreAIMatch = {
+                          0: 0,
+                          1: 0,
+                          2: 0,
+                          3: 0,
+                          4: 0,
+                          5: 0,
+                          6: 0,
+                          7: 0,
+                          8: 0,
+                          9: 0
+                        }
       }
 
       function AIMove() { //This function computes which move the AI should make next
@@ -708,7 +720,7 @@
               let score = minimax(avaialableSpacesAITester, 9, true);
               move = score.move;
           }
-
+          console.log("MOVEEEE",move)
           if (move !== undefined) {
               updateGameBoard(move);
           }
