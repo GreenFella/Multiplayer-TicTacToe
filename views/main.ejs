@@ -625,6 +625,12 @@
             document.getElementById(elementStyleRectLine).style.opacity = "0";
             movesArrayFriendlyAIMatch.splice(locationNumber, 1, locationNumber)
             myTurn = 0;
+            draw()
+            let winVal = winnerAIMatchFriendly()
+            if (winVal == "win") {
+              console.log("WINNY")
+              return
+            }
             AIMove()
           }
         }
@@ -723,6 +729,11 @@
           console.log("MOVEEEE",move)
           if (move !== undefined) {
               updateGameBoard(move);
+          }
+          draw()
+          let winVal = winnerAIMatchAI()
+          if (winVal == "win") {
+            return
           }
         }
       }
@@ -825,7 +836,31 @@
           return 0;
       }
 
-      function winnerAIMatch() { //This function checks if the game has a winner after each move
+      function winnerAIMatchFriendly() { //This function checks if the game has a winner after each move
+        let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357];
+          
+          for (let winnerValue of winningCombinations) {
+              let stringIt = JSON.stringify(winnerValue);
+              let first = stringIt.charAt(stringIt.length - 3);
+              let second = stringIt.charAt(stringIt.length - 2);
+              let third = stringIt.charAt(stringIt.length - 1);
+
+              let arrayMovesCheckerFirst = movesArrayFriendlyAIMatch.find(item => item == first);
+              let arrayMovesCheckerSecond = movesArrayFriendlyAIMatch.find(item => item == second);
+              let arrayMovesCheckerThird = movesArrayFriendlyAIMatch.find(item => item == third);
+              console.log("2OKKAKAA",arrayMovesCheckerFirst)
+              console.log("3OKKAKAA",arrayMovesCheckerSecond)
+              console.log("4OKKAKAA",arrayMovesCheckerThird)
+              if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
+                setEndScreen("YOU WIN!", "green")
+                gameStart = 0
+                return "win"
+              }
+          }
+          return 0;
+      }
+
+      function winnerAIMatchAI() { //This function checks if the game has a winner after each move
         let winningCombinations = [123, 456, 789, 147, 258, 369, 159, 357]
         winningCombinations.forEach(checkForWinnerFriendly)
         function checkForWinnerFriendly (winnerValue) {
@@ -833,14 +868,33 @@
           let first = stringIt.charAt(stringIt.length-3)
           let second = stringIt.charAt(stringIt.length-2)
           let third = stringIt.charAt(stringIt.length-1)
-          let arrayMovesCheckerFirst = movesArrayFriendlyAIMatch.find(item => item == first)
-          let arrayMovesCheckerSecond = movesArrayFriendlyAIMatch.find(item => item == second)
-          let arrayMovesCheckerThird = movesArrayFriendlyAIMatch.find(item => item == third)
+          let arrayMovesCheckerFirst = movesArrayOpponentAIMatch.find(item => item == first)
+          let arrayMovesCheckerSecond = movesArrayOpponentAIMatch.find(item => item == second)
+          let arrayMovesCheckerThird = movesArrayOpponentAIMatch.find(item => item == third)
           if (arrayMovesCheckerFirst !== undefined && arrayMovesCheckerSecond !== undefined && arrayMovesCheckerThird !== undefined) {
-            setEndScreen("YOU WIN!", "green")
+            console.log("BUBUBU")
+            setEndScreen("YOU LOOSE!", "red")
             gameStart = 0
+            return "win"
           }
+          return "nope"
         }
+      }
+
+      function draw() { //This function checks if the game is a draw after each move
+	      combinedArr = movesArrayOpponentAIMatch.map((val, index) => {
+		      if (val === 0) {
+			      return movesArrayFriendlyAIMatch[index];
+		      } else {
+			      return val;
+		      }
+	      });
+	      combinedArr[0] = 1;
+	      let arrayMovesCheckerDraw = combinedArr.find(item => item == 0)
+	      if (arrayMovesCheckerDraw == undefined) {
+          setEndScreen("ITS A DRAW!", "yellow")
+          gameStart = 0
+	      }
       }
 
       playAgainstAI()
